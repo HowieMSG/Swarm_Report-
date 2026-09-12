@@ -164,6 +164,10 @@
 
   .foot{max-width:1180px; margin:30px auto 0; padding:16px 20px; border-top:1px solid var(--line); font-size:.76rem; color:var(--text-mute);}
   .empty{padding:30px; text-align:center; color:var(--text-mute); font-size:.9rem;}
+  .fallback-banner{display:none; max-width:1180px; margin:0 auto 14px; padding:10px 16px; background:#fff4e0; border:1px solid #e8c77a; color:#6b4a06; border-radius:8px; font-size:.82rem;}
+  @media (prefers-color-scheme: dark){
+    .fallback-banner{background:#3a2f10; border-color:#7a5c1a; color:#f0d38a;}
+  }
 </style>
 </head>
 <body>
@@ -183,6 +187,9 @@
 </header>
 
 <main>
+  <div class="fallback-banner" id="fallbackBanner">
+    Showing the data bundled inside this page — the live <code>data/season.json</code> file couldn't be loaded (check that it was uploaded at that exact path). Any recent hand-edits to that file won't show until this is fixed.
+  </div>
   <div class="filter-bar" id="filterBar">
     <span class="lbl">Games</span>
     <!-- chips injected by JS -->
@@ -231,6 +238,1130 @@
   Source: Veo Analytics Studio, Highland YSC (Highland Elite Swarm 12/13). Data pulled from Veo's Player Stats table and match Events panel. Edit <code>data/season.json</code> directly to fix a note or typo, or come back to Claude to pull the next match.
 </div>
 
+<script id="embedded-season-data" type="application/json">
+{
+  "team": {
+    "name": "Highland Elite Swarm 12/13",
+    "club": "Highland YSC",
+    "colors": {
+      "accent": "#6e3fa3",
+      "accentStrong": "#3b1f63",
+      "accentSoft": "#efe6f8",
+      "seriesOwn": "#4a3aa7",
+      "seriesOwnLight": "#9085e9",
+      "seriesOpp": "#eb6834",
+      "seriesOppLight": "#d95926"
+    },
+    "logo": "assets/logo.png"
+  },
+  "matches": [
+    {
+      "id": "2026-08-09-keystone",
+      "opponent": "Keystone 12/13 ECNL RL",
+      "date": "2026-08-09",
+      "homeAway": "Home",
+      "result": "D",
+      "scoreFor": 1,
+      "scoreAgainst": 1,
+      "possession": 49,
+      "shotsFor": 7,
+      "shotsAgainst": 11,
+      "attemptsFor": 8,
+      "attemptsAgainst": 12,
+      "convFor": 13,
+      "convAgainst": 8,
+      "passThirds": {
+        "def": 2,
+        "mid": 78,
+        "att": 20
+      },
+      "possThirds": {
+        "def": 38,
+        "mid": 34,
+        "att": 28
+      },
+      "read": "Out-attempted 8\u201312 despite a near-even possession split. The defense faced more shot volume than it produced \u2014 the closest thing to a warning sign in either result this stretch.",
+      "moments": {
+        "timeline": [
+          {
+            "minute": 11,
+            "team": "own",
+            "jersey": 44,
+            "score": "1\u20130"
+          },
+          {
+            "minute": 23,
+            "team": "opp",
+            "jersey": 23,
+            "score": "1\u20131"
+          }
+        ],
+        "own": [
+          {
+            "minute": 11,
+            "jersey": 44,
+            "isGoal": true,
+            "score": "1\u20130",
+            "note": "GOAL \u2014 1\u20130. #44 breaks the deadlock, the only goal either team needed a full training block to finish clinically. First shot of a productive night for #44 (3 shots total)."
+          },
+          {
+            "minute": 30,
+            "jersey": 44,
+            "isGoal": false,
+            "score": null,
+            "note": "Shot, 2nd period. #44 gets in behind again late \u2014 the third chance created down this side, a repeatable pattern worth drilling as a set look."
+          }
+        ],
+        "opp": [
+          {
+            "minute": 23,
+            "jersey": 23,
+            "isGoal": true,
+            "score": "1\u20131",
+            "note": "GOAL \u2014 1\u20131. #23 equalizes. Keystone's most productive attacker \u2014 involved in 3 of their 6 shots this match (6\u2019, 23\u2019, 32\u2019)."
+          },
+          {
+            "minute": 32,
+            "jersey": 23,
+            "isGoal": false,
+            "score": null,
+            "note": "Shot, 2nd period. #23 tests the back line again right after the restart \u2014 the same runner created their first and last look of the match."
+          }
+        ],
+        "fullLog": {
+          "own": [
+            {
+              "minute": 4,
+              "jersey": 18
+            },
+            {
+              "minute": 6,
+              "jersey": 44
+            },
+            {
+              "minute": 11,
+              "jersey": 44,
+              "isGoal": true,
+              "score": "1-0"
+            },
+            {
+              "minute": 13,
+              "jersey": 3
+            },
+            {
+              "minute": 25,
+              "jersey": 44
+            },
+            {
+              "minute": 30,
+              "jersey": 44
+            },
+            {
+              "minute": 34,
+              "jersey": 12
+            }
+          ],
+          "opp": [
+            {
+              "minute": 6,
+              "jersey": 23
+            },
+            {
+              "minute": 15,
+              "jersey": 13
+            },
+            {
+              "minute": 16,
+              "jersey": 4
+            },
+            {
+              "minute": 21,
+              "jersey": 23
+            },
+            {
+              "minute": 23,
+              "jersey": 23,
+              "isGoal": true,
+              "score": "1-1"
+            },
+            {
+              "minute": 27,
+              "jersey": 12
+            },
+            {
+              "minute": 32,
+              "jersey": 23
+            }
+          ]
+        }
+      },
+      "players": [
+        {
+          "jersey": "2",
+          "minutes": 38.0,
+          "goals": 0,
+          "assists": 0,
+          "shots": 0,
+          "totalAttempts": 0,
+          "conversionRate": 0.0,
+          "passes": 14,
+          "passesSuccessful": 2,
+          "passesUnsuccessful": 12,
+          "passSuccessRate": 14.0,
+          "dribbles": 0,
+          "goalInvolvements": 0,
+          "tackles": 1,
+          "interceptions": 0,
+          "highIntensityRuns": 9,
+          "sprints": 1,
+          "distanceMi": 2.3,
+          "avgSpeedMph": 3.8,
+          "topSpeedMph": 14.9,
+          "fouls": 0,
+          "throwIns": 7,
+          "freeKicks": 0,
+          "cornersEvents": 0,
+          "looseBallRecoveries": 0,
+          "totalEvents": 7
+        },
+        {
+          "jersey": "3",
+          "minutes": 30.0,
+          "goals": 0,
+          "assists": 0,
+          "shots": 1,
+          "totalAttempts": 1,
+          "conversionRate": 0.0,
+          "passes": 10,
+          "passesSuccessful": 5,
+          "passesUnsuccessful": 5,
+          "passSuccessRate": 50.0,
+          "dribbles": 0,
+          "goalInvolvements": 0,
+          "tackles": 2,
+          "interceptions": 0,
+          "highIntensityRuns": 3,
+          "sprints": 0,
+          "distanceMi": 1.9,
+          "avgSpeedMph": 3.8,
+          "topSpeedMph": 12.9,
+          "fouls": 0,
+          "throwIns": 0,
+          "freeKicks": 0,
+          "cornersEvents": 0,
+          "looseBallRecoveries": 0,
+          "totalEvents": 2
+        },
+        {
+          "jersey": "4",
+          "minutes": 49.0,
+          "goals": 0,
+          "assists": 0,
+          "shots": 0,
+          "totalAttempts": 0,
+          "conversionRate": 0.0,
+          "passes": 4,
+          "passesSuccessful": 0,
+          "passesUnsuccessful": 4,
+          "passSuccessRate": 0.0,
+          "dribbles": 0,
+          "goalInvolvements": 0,
+          "tackles": 1,
+          "interceptions": 0,
+          "highIntensityRuns": 3,
+          "sprints": 1,
+          "distanceMi": 2.5,
+          "avgSpeedMph": 3.3,
+          "topSpeedMph": 17.4,
+          "fouls": 0,
+          "throwIns": 0,
+          "freeKicks": 0,
+          "cornersEvents": 0,
+          "looseBallRecoveries": 0,
+          "totalEvents": 0
+        },
+        {
+          "jersey": "6",
+          "minutes": 41.0,
+          "goals": 0,
+          "assists": 0,
+          "shots": 0,
+          "totalAttempts": 0,
+          "conversionRate": 0.0,
+          "passes": 7,
+          "passesSuccessful": 4,
+          "passesUnsuccessful": 3,
+          "passSuccessRate": 57.0,
+          "dribbles": 0,
+          "goalInvolvements": 0,
+          "tackles": 4,
+          "interceptions": 0,
+          "highIntensityRuns": 7,
+          "sprints": 0,
+          "distanceMi": 2.5,
+          "avgSpeedMph": 3.8,
+          "topSpeedMph": 13.7,
+          "fouls": 0,
+          "throwIns": 0,
+          "freeKicks": 0,
+          "cornersEvents": 0,
+          "looseBallRecoveries": 0,
+          "totalEvents": 0
+        },
+        {
+          "jersey": "12",
+          "minutes": 20.0,
+          "goals": 0,
+          "assists": 0,
+          "shots": 1,
+          "totalAttempts": 1,
+          "conversionRate": 0.0,
+          "passes": 5,
+          "passesSuccessful": 2,
+          "passesUnsuccessful": 3,
+          "passSuccessRate": 40.0,
+          "dribbles": 1,
+          "goalInvolvements": 0,
+          "tackles": 0,
+          "interceptions": 0,
+          "highIntensityRuns": 6,
+          "sprints": 1,
+          "distanceMi": 1.2,
+          "avgSpeedMph": 3.5,
+          "topSpeedMph": 16.2,
+          "fouls": 0,
+          "throwIns": 0,
+          "freeKicks": 0,
+          "cornersEvents": 0,
+          "looseBallRecoveries": 0,
+          "totalEvents": 1
+        },
+        {
+          "jersey": "13",
+          "minutes": 27.0,
+          "goals": 0,
+          "assists": 0,
+          "shots": 0,
+          "totalAttempts": 0,
+          "conversionRate": 0.0,
+          "passes": 8,
+          "passesSuccessful": 2,
+          "passesUnsuccessful": 6,
+          "passSuccessRate": 25.0,
+          "dribbles": 0,
+          "goalInvolvements": 0,
+          "tackles": 3,
+          "interceptions": 0,
+          "highIntensityRuns": 3,
+          "sprints": 0,
+          "distanceMi": 1.8,
+          "avgSpeedMph": 3.9,
+          "topSpeedMph": 13.3,
+          "fouls": 0,
+          "throwIns": 0,
+          "freeKicks": 0,
+          "cornersEvents": 0,
+          "looseBallRecoveries": 0,
+          "totalEvents": 0
+        },
+        {
+          "jersey": "17",
+          "minutes": 52.0,
+          "goals": 0,
+          "assists": 0,
+          "shots": 0,
+          "totalAttempts": 0,
+          "conversionRate": 0.0,
+          "passes": 6,
+          "passesSuccessful": 3,
+          "passesUnsuccessful": 3,
+          "passSuccessRate": 50.0,
+          "dribbles": 0,
+          "goalInvolvements": 0,
+          "tackles": 7,
+          "interceptions": 0,
+          "highIntensityRuns": 8,
+          "sprints": 4,
+          "distanceMi": 2.4,
+          "avgSpeedMph": 2.7,
+          "topSpeedMph": 16.0,
+          "fouls": 1,
+          "throwIns": 0,
+          "freeKicks": 0,
+          "cornersEvents": 0,
+          "looseBallRecoveries": 0,
+          "totalEvents": 1
+        },
+        {
+          "jersey": "18",
+          "minutes": 45.0,
+          "goals": 0,
+          "assists": 0,
+          "shots": 1,
+          "totalAttempts": 1,
+          "conversionRate": 0.0,
+          "passes": 11,
+          "passesSuccessful": 3,
+          "passesUnsuccessful": 8,
+          "passSuccessRate": 27.0,
+          "dribbles": 1,
+          "goalInvolvements": 0,
+          "tackles": 2,
+          "interceptions": 0,
+          "highIntensityRuns": 10,
+          "sprints": 1,
+          "distanceMi": 2.9,
+          "avgSpeedMph": 3.8,
+          "topSpeedMph": 15.2,
+          "fouls": 0,
+          "throwIns": 1,
+          "freeKicks": 0,
+          "cornersEvents": 0,
+          "looseBallRecoveries": 0,
+          "totalEvents": 2
+        },
+        {
+          "jersey": "24",
+          "minutes": 47.0,
+          "goals": 0,
+          "assists": 0,
+          "shots": 0,
+          "totalAttempts": 0,
+          "conversionRate": 0.0,
+          "passes": 19,
+          "passesSuccessful": 8,
+          "passesUnsuccessful": 11,
+          "passSuccessRate": 42.0,
+          "dribbles": 0,
+          "goalInvolvements": 0,
+          "tackles": 3,
+          "interceptions": 0,
+          "highIntensityRuns": 7,
+          "sprints": 2,
+          "distanceMi": 3.1,
+          "avgSpeedMph": 4.0,
+          "topSpeedMph": 15.4,
+          "fouls": 0,
+          "throwIns": 0,
+          "freeKicks": 0,
+          "cornersEvents": 2,
+          "looseBallRecoveries": 0,
+          "totalEvents": 2
+        },
+        {
+          "jersey": "27",
+          "minutes": 1.0,
+          "goals": 0,
+          "assists": 0,
+          "shots": 0,
+          "totalAttempts": 0,
+          "conversionRate": 0.0,
+          "passes": 0,
+          "passesSuccessful": 0,
+          "passesUnsuccessful": 0,
+          "passSuccessRate": 0.0,
+          "dribbles": 0,
+          "goalInvolvements": 0,
+          "tackles": 0,
+          "interceptions": 0,
+          "highIntensityRuns": 0,
+          "sprints": 0,
+          "distanceMi": 0.0,
+          "avgSpeedMph": 2.6,
+          "topSpeedMph": 3.7,
+          "fouls": 0,
+          "throwIns": 0,
+          "freeKicks": 0,
+          "cornersEvents": 0,
+          "looseBallRecoveries": 0,
+          "totalEvents": 0
+        },
+        {
+          "jersey": "28",
+          "minutes": 13.0,
+          "goals": 0,
+          "assists": 0,
+          "shots": 0,
+          "totalAttempts": 0,
+          "conversionRate": 0.0,
+          "passes": 2,
+          "passesSuccessful": 1,
+          "passesUnsuccessful": 1,
+          "passSuccessRate": 50.0,
+          "dribbles": 0,
+          "goalInvolvements": 0,
+          "tackles": 1,
+          "interceptions": 0,
+          "highIntensityRuns": 1,
+          "sprints": 0,
+          "distanceMi": 0.9,
+          "avgSpeedMph": 4.6,
+          "topSpeedMph": 13.2,
+          "fouls": 0,
+          "throwIns": 0,
+          "freeKicks": 0,
+          "cornersEvents": 0,
+          "looseBallRecoveries": 0,
+          "totalEvents": 0
+        },
+        {
+          "jersey": "31",
+          "minutes": 34.0,
+          "goals": 0,
+          "assists": 0,
+          "shots": 0,
+          "totalAttempts": 0,
+          "conversionRate": 0.0,
+          "passes": 10,
+          "passesSuccessful": 1,
+          "passesUnsuccessful": 9,
+          "passSuccessRate": 10.0,
+          "dribbles": 0,
+          "goalInvolvements": 0,
+          "tackles": 4,
+          "interceptions": 0,
+          "highIntensityRuns": 13,
+          "sprints": 1,
+          "distanceMi": 2.1,
+          "avgSpeedMph": 3.7,
+          "topSpeedMph": 14.5,
+          "fouls": 0,
+          "throwIns": 5,
+          "freeKicks": 0,
+          "cornersEvents": 0,
+          "looseBallRecoveries": 0,
+          "totalEvents": 5
+        },
+        {
+          "jersey": "44",
+          "minutes": 42.0,
+          "goals": 1,
+          "assists": 0,
+          "shots": 4,
+          "totalAttempts": 5,
+          "conversionRate": 20.0,
+          "passes": 9,
+          "passesSuccessful": 4,
+          "passesUnsuccessful": 5,
+          "passSuccessRate": 44.0,
+          "dribbles": 7,
+          "goalInvolvements": 1,
+          "tackles": 2,
+          "interceptions": 0,
+          "highIntensityRuns": 15,
+          "sprints": 9,
+          "distanceMi": 2.6,
+          "avgSpeedMph": 3.7,
+          "topSpeedMph": 19.1,
+          "fouls": 2,
+          "throwIns": 0,
+          "freeKicks": 0,
+          "cornersEvents": 0,
+          "looseBallRecoveries": 0,
+          "totalEvents": 7
+        },
+        {
+          "jersey": "88",
+          "minutes": 38.0,
+          "goals": 0,
+          "assists": 0,
+          "shots": 0,
+          "totalAttempts": 0,
+          "conversionRate": 0.0,
+          "passes": 13,
+          "passesSuccessful": 3,
+          "passesUnsuccessful": 10,
+          "passSuccessRate": 23.0,
+          "dribbles": 0,
+          "goalInvolvements": 0,
+          "tackles": 1,
+          "interceptions": 0,
+          "highIntensityRuns": 5,
+          "sprints": 3,
+          "distanceMi": 1.9,
+          "avgSpeedMph": 3.3,
+          "topSpeedMph": 18.3,
+          "fouls": 0,
+          "throwIns": 3,
+          "freeKicks": 1,
+          "cornersEvents": 0,
+          "looseBallRecoveries": 0,
+          "totalEvents": 4
+        }
+      ]
+    },
+    {
+      "id": "2026-08-09-pennfusion",
+      "opponent": "Penn Fusion 12/13 Reds",
+      "date": "2026-08-09",
+      "homeAway": "Home",
+      "result": "W",
+      "scoreFor": 3,
+      "scoreAgainst": 2,
+      "possession": 54,
+      "shotsFor": 10,
+      "shotsAgainst": 5,
+      "attemptsFor": 13,
+      "attemptsAgainst": 7,
+      "convFor": 23,
+      "convAgainst": 29,
+      "passThirds": {
+        "def": 3,
+        "mid": 78,
+        "att": 19
+      },
+      "possThirds": {
+        "def": 30,
+        "mid": 38,
+        "att": 32
+      },
+      "read": "The most dominant attacking output of the stretch (13 attempts to 7) \u2014 but conceding 2 goals from only 5 shots against (29% conversion allowed) shows the chances given up were high quality. The win papers over a defensive lapse worth reviewing on film.",
+      "moments": {
+        "timeline": [
+          {
+            "minute": 8,
+            "team": "opp",
+            "jersey": 54,
+            "score": "0\u20131"
+          },
+          {
+            "minute": 35,
+            "team": "own",
+            "jersey": 12,
+            "score": "1\u20131"
+          },
+          {
+            "minute": 36,
+            "team": "opp",
+            "jersey": 8,
+            "score": "1\u20132"
+          },
+          {
+            "minute": 46,
+            "team": "own",
+            "jersey": 44,
+            "score": "2\u20132"
+          },
+          {
+            "minute": 55,
+            "team": "own",
+            "jersey": 44,
+            "score": "3\u20132"
+          }
+        ],
+        "own": [
+          {
+            "minute": 55,
+            "jersey": 44,
+            "isGoal": true,
+            "score": "3\u20132",
+            "note": "GOAL \u2014 3\u20132, the winner. #44 completes the comeback nine minutes after equalizing \u2014 the decisive moment of the stretch. Show this one full-speed to the group."
+          },
+          {
+            "minute": 46,
+            "jersey": 44,
+            "isGoal": true,
+            "score": "2\u20132",
+            "note": "GOAL \u2014 2\u20132. Down 1\u20132 at the half, #44 levels it right after the restart and swings the momentum for good."
+          }
+        ],
+        "opp": [
+          {
+            "minute": 8,
+            "jersey": 54,
+            "isGoal": true,
+            "score": "0\u20131",
+            "note": "GOAL \u2014 0\u20131. #54 opens the scoring early \u2014 worth reviewing the buildup to see what space was conceded in the first 10 minutes."
+          },
+          {
+            "minute": 36,
+            "jersey": 8,
+            "isGoal": true,
+            "score": "1\u20132",
+            "note": "GOAL \u2014 1\u20132. #8 restores the lead just a minute after our equalizer \u2014 a quick-transition sucker punch worth flagging for defensive shape after we score."
+          }
+        ],
+        "fullLog": {
+          "own": [
+            {
+              "minute": 12,
+              "jersey": null
+            },
+            {
+              "minute": 24,
+              "jersey": null
+            },
+            {
+              "minute": 25,
+              "jersey": 18
+            },
+            {
+              "minute": 35,
+              "jersey": 12,
+              "isGoal": true,
+              "score": "1-1"
+            },
+            {
+              "minute": 37,
+              "jersey": null
+            },
+            {
+              "minute": 40,
+              "jersey": 24
+            },
+            {
+              "minute": 42,
+              "jersey": 6
+            },
+            {
+              "minute": 46,
+              "jersey": 44,
+              "isGoal": true,
+              "score": "2-2"
+            },
+            {
+              "minute": 48,
+              "jersey": 6
+            },
+            {
+              "minute": 50,
+              "jersey": 12
+            },
+            {
+              "minute": 55,
+              "jersey": 44,
+              "isGoal": true,
+              "score": "3-2"
+            }
+          ],
+          "opp": [
+            {
+              "minute": 2,
+              "jersey": 18
+            },
+            {
+              "minute": 7,
+              "jersey": 18
+            },
+            {
+              "minute": 8,
+              "jersey": 54,
+              "isGoal": true,
+              "score": "0-1"
+            },
+            {
+              "minute": 21,
+              "jersey": 18
+            },
+            {
+              "minute": 31,
+              "jersey": 18
+            },
+            {
+              "minute": 35,
+              "jersey": null
+            }
+          ]
+        }
+      },
+      "players": [
+        {
+          "jersey": "2",
+          "minutes": 39.0,
+          "goals": 0,
+          "assists": 0,
+          "shots": 0,
+          "totalAttempts": 0,
+          "conversionRate": 0.0,
+          "passes": 6,
+          "passesSuccessful": 2,
+          "passesUnsuccessful": 4,
+          "passSuccessRate": 33.0,
+          "dribbles": 0,
+          "goalInvolvements": 0,
+          "tackles": 1,
+          "interceptions": 0,
+          "highIntensityRuns": 8,
+          "sprints": 1,
+          "distanceMi": 2.3,
+          "avgSpeedMph": 3.8,
+          "topSpeedMph": 17.0,
+          "fouls": 0,
+          "throwIns": 2,
+          "freeKicks": 1,
+          "cornersEvents": 0,
+          "looseBallRecoveries": 0,
+          "totalEvents": 3
+        },
+        {
+          "jersey": "3",
+          "minutes": 38.0,
+          "goals": 0,
+          "assists": 0,
+          "shots": 0,
+          "totalAttempts": 0,
+          "conversionRate": 0.0,
+          "passes": 7,
+          "passesSuccessful": 4,
+          "passesUnsuccessful": 3,
+          "passSuccessRate": 57.0,
+          "dribbles": 0,
+          "goalInvolvements": 0,
+          "tackles": 2,
+          "interceptions": 0,
+          "highIntensityRuns": 6,
+          "sprints": 0,
+          "distanceMi": 2.8,
+          "avgSpeedMph": 4.5,
+          "topSpeedMph": 13.8,
+          "fouls": 0,
+          "throwIns": 0,
+          "freeKicks": 0,
+          "cornersEvents": 0,
+          "looseBallRecoveries": 0,
+          "totalEvents": 0
+        },
+        {
+          "jersey": "4",
+          "minutes": 42.0,
+          "goals": 0,
+          "assists": 0,
+          "shots": 0,
+          "totalAttempts": 0,
+          "conversionRate": 0.0,
+          "passes": 10,
+          "passesSuccessful": 6,
+          "passesUnsuccessful": 4,
+          "passSuccessRate": 60.0,
+          "dribbles": 0,
+          "goalInvolvements": 0,
+          "tackles": 5,
+          "interceptions": 0,
+          "highIntensityRuns": 10,
+          "sprints": 3,
+          "distanceMi": 2.4,
+          "avgSpeedMph": 3.4,
+          "topSpeedMph": 16.6,
+          "fouls": 0,
+          "throwIns": 0,
+          "freeKicks": 2,
+          "cornersEvents": 0,
+          "looseBallRecoveries": 0,
+          "totalEvents": 2
+        },
+        {
+          "jersey": "6",
+          "minutes": 34.0,
+          "goals": 0,
+          "assists": 0,
+          "shots": 2,
+          "totalAttempts": 2,
+          "conversionRate": 0.0,
+          "passes": 4,
+          "passesSuccessful": 1,
+          "passesUnsuccessful": 3,
+          "passSuccessRate": 25.0,
+          "dribbles": 0,
+          "goalInvolvements": 0,
+          "tackles": 1,
+          "interceptions": 0,
+          "highIntensityRuns": 9,
+          "sprints": 2,
+          "distanceMi": 2.1,
+          "avgSpeedMph": 4.4,
+          "topSpeedMph": 14.4,
+          "fouls": 0,
+          "throwIns": 0,
+          "freeKicks": 0,
+          "cornersEvents": 0,
+          "looseBallRecoveries": 0,
+          "totalEvents": 2
+        },
+        {
+          "jersey": "10",
+          "minutes": 1.0,
+          "goals": 0,
+          "assists": 0,
+          "shots": 0,
+          "totalAttempts": 0,
+          "conversionRate": 0.0,
+          "passes": 1,
+          "passesSuccessful": 0,
+          "passesUnsuccessful": 1,
+          "passSuccessRate": 0.0,
+          "dribbles": 0,
+          "goalInvolvements": 0,
+          "tackles": 0,
+          "interceptions": 0,
+          "highIntensityRuns": 1,
+          "sprints": 0,
+          "distanceMi": 0.1,
+          "avgSpeedMph": 4.2,
+          "topSpeedMph": 12.6,
+          "fouls": 0,
+          "throwIns": 0,
+          "freeKicks": 0,
+          "cornersEvents": 0,
+          "looseBallRecoveries": 0,
+          "totalEvents": 0
+        },
+        {
+          "jersey": "12",
+          "minutes": 26.0,
+          "goals": 1,
+          "assists": 0,
+          "shots": 1,
+          "totalAttempts": 2,
+          "conversionRate": 50.0,
+          "passes": 10,
+          "passesSuccessful": 4,
+          "passesUnsuccessful": 6,
+          "passSuccessRate": 40.0,
+          "dribbles": 1,
+          "goalInvolvements": 1,
+          "tackles": 2,
+          "interceptions": 0,
+          "highIntensityRuns": 14,
+          "sprints": 6,
+          "distanceMi": 1.4,
+          "avgSpeedMph": 3.8,
+          "topSpeedMph": 15.3,
+          "fouls": 0,
+          "throwIns": 0,
+          "freeKicks": 0,
+          "cornersEvents": 1,
+          "looseBallRecoveries": 0,
+          "totalEvents": 3
+        },
+        {
+          "jersey": "13",
+          "minutes": 40.0,
+          "goals": 0,
+          "assists": 0,
+          "shots": 0,
+          "totalAttempts": 0,
+          "conversionRate": 0.0,
+          "passes": 13,
+          "passesSuccessful": 4,
+          "passesUnsuccessful": 9,
+          "passSuccessRate": 31.0,
+          "dribbles": 2,
+          "goalInvolvements": 0,
+          "tackles": 5,
+          "interceptions": 0,
+          "highIntensityRuns": 7,
+          "sprints": 1,
+          "distanceMi": 2.4,
+          "avgSpeedMph": 3.8,
+          "topSpeedMph": 16.4,
+          "fouls": 0,
+          "throwIns": 0,
+          "freeKicks": 0,
+          "cornersEvents": 0,
+          "looseBallRecoveries": 0,
+          "totalEvents": 0
+        },
+        {
+          "jersey": "17",
+          "minutes": 57.0,
+          "goals": 0,
+          "assists": 0,
+          "shots": 0,
+          "totalAttempts": 0,
+          "conversionRate": 0.0,
+          "passes": 12,
+          "passesSuccessful": 7,
+          "passesUnsuccessful": 5,
+          "passSuccessRate": 58.0,
+          "dribbles": 0,
+          "goalInvolvements": 0,
+          "tackles": 6,
+          "interceptions": 0,
+          "highIntensityRuns": 11,
+          "sprints": 2,
+          "distanceMi": 2.9,
+          "avgSpeedMph": 3.0,
+          "topSpeedMph": 16.1,
+          "fouls": 0,
+          "throwIns": 0,
+          "freeKicks": 0,
+          "cornersEvents": 0,
+          "looseBallRecoveries": 0,
+          "totalEvents": 0
+        },
+        {
+          "jersey": "18",
+          "minutes": 38.0,
+          "goals": 0,
+          "assists": 0,
+          "shots": 1,
+          "totalAttempts": 1,
+          "conversionRate": 0.0,
+          "passes": 11,
+          "passesSuccessful": 3,
+          "passesUnsuccessful": 8,
+          "passSuccessRate": 27.0,
+          "dribbles": 1,
+          "goalInvolvements": 0,
+          "tackles": 3,
+          "interceptions": 0,
+          "highIntensityRuns": 10,
+          "sprints": 0,
+          "distanceMi": 2.5,
+          "avgSpeedMph": 3.9,
+          "topSpeedMph": 14.1,
+          "fouls": 0,
+          "throwIns": 0,
+          "freeKicks": 0,
+          "cornersEvents": 0,
+          "looseBallRecoveries": 0,
+          "totalEvents": 1
+        },
+        {
+          "jersey": "24",
+          "minutes": 52.0,
+          "goals": 0,
+          "assists": 0,
+          "shots": 3,
+          "totalAttempts": 3,
+          "conversionRate": 0.0,
+          "passes": 26,
+          "passesSuccessful": 10,
+          "passesUnsuccessful": 16,
+          "passSuccessRate": 38.0,
+          "dribbles": 3,
+          "goalInvolvements": 0,
+          "tackles": 8,
+          "interceptions": 0,
+          "highIntensityRuns": 11,
+          "sprints": 0,
+          "distanceMi": 3.5,
+          "avgSpeedMph": 4.1,
+          "topSpeedMph": 13.8,
+          "fouls": 1,
+          "throwIns": 1,
+          "freeKicks": 0,
+          "cornersEvents": 4,
+          "looseBallRecoveries": 0,
+          "totalEvents": 9
+        },
+        {
+          "jersey": "28",
+          "minutes": 25.0,
+          "goals": 0,
+          "assists": 0,
+          "shots": 0,
+          "totalAttempts": 0,
+          "conversionRate": 0.0,
+          "passes": 7,
+          "passesSuccessful": 3,
+          "passesUnsuccessful": 4,
+          "passSuccessRate": 43.0,
+          "dribbles": 1,
+          "goalInvolvements": 0,
+          "tackles": 1,
+          "interceptions": 0,
+          "highIntensityRuns": 5,
+          "sprints": 0,
+          "distanceMi": 1.6,
+          "avgSpeedMph": 3.8,
+          "topSpeedMph": 13.5,
+          "fouls": 0,
+          "throwIns": 0,
+          "freeKicks": 0,
+          "cornersEvents": 0,
+          "looseBallRecoveries": 0,
+          "totalEvents": 0
+        },
+        {
+          "jersey": "31",
+          "minutes": 31.0,
+          "goals": 0,
+          "assists": 0,
+          "shots": 0,
+          "totalAttempts": 0,
+          "conversionRate": 0.0,
+          "passes": 8,
+          "passesSuccessful": 3,
+          "passesUnsuccessful": 5,
+          "passSuccessRate": 38.0,
+          "dribbles": 0,
+          "goalInvolvements": 0,
+          "tackles": 0,
+          "interceptions": 0,
+          "highIntensityRuns": 9,
+          "sprints": 3,
+          "distanceMi": 1.8,
+          "avgSpeedMph": 3.2,
+          "topSpeedMph": 14.9,
+          "fouls": 0,
+          "throwIns": 3,
+          "freeKicks": 0,
+          "cornersEvents": 0,
+          "looseBallRecoveries": 0,
+          "totalEvents": 3
+        },
+        {
+          "jersey": "44",
+          "minutes": 57.0,
+          "goals": 2,
+          "assists": 0,
+          "shots": 0,
+          "totalAttempts": 2,
+          "conversionRate": 100.0,
+          "passes": 18,
+          "passesSuccessful": 6,
+          "passesUnsuccessful": 12,
+          "passSuccessRate": 33.0,
+          "dribbles": 2,
+          "goalInvolvements": 2,
+          "tackles": 2,
+          "interceptions": 0,
+          "highIntensityRuns": 19,
+          "sprints": 10,
+          "distanceMi": 3.7,
+          "avgSpeedMph": 3.9,
+          "topSpeedMph": 18.0,
+          "fouls": 1,
+          "throwIns": 0,
+          "freeKicks": 0,
+          "cornersEvents": 0,
+          "looseBallRecoveries": 0,
+          "totalEvents": 3
+        },
+        {
+          "jersey": "88",
+          "minutes": 42.0,
+          "goals": 0,
+          "assists": 0,
+          "shots": 0,
+          "totalAttempts": 0,
+          "conversionRate": 0.0,
+          "passes": 10,
+          "passesSuccessful": 4,
+          "passesUnsuccessful": 6,
+          "passSuccessRate": 40.0,
+          "dribbles": 0,
+          "goalInvolvements": 0,
+          "tackles": 0,
+          "interceptions": 0,
+          "highIntensityRuns": 9,
+          "sprints": 8,
+          "distanceMi": 2.5,
+          "avgSpeedMph": 3.5,
+          "topSpeedMph": 17.2,
+          "fouls": 0,
+          "throwIns": 1,
+          "freeKicks": 0,
+          "cornersEvents": 0,
+          "looseBallRecoveries": 0,
+          "totalEvents": 1
+        }
+      ]
+    }
+  ]
+}
+</script>
 <script>
 (function(){
   var state = { season: null, selected: new Set(), sortKey: 'goals', sortDir: 'desc' };
@@ -528,15 +1659,38 @@
 
   document.getElementById('playerSearch').addEventListener('input', function(){ renderPlayerTable(selectedMatches()); });
 
-  fetch('data/season.json').then(function(r){ return r.json(); }).then(function(season){
+  function initSeason(season, isFallback){
     state.season = season;
     state.selected = new Set(season.matches.map(function(m){ return m.id; }));
     document.getElementById('teamName').textContent = season.team.name;
     document.getElementById('teamSub').textContent = season.team.club + ' · Veo Analytics Studio';
     document.getElementById('crestImg').src = season.team.logo;
+    if (isFallback) {
+      var banner = document.getElementById('fallbackBanner');
+      if (banner) banner.style.display = 'block';
+    }
     renderAll();
+  }
+
+  function loadEmbeddedFallback(reason){
+    try {
+      var tag = document.getElementById('embedded-season-data');
+      if (!tag) throw new Error('no embedded fallback data present');
+      var season = JSON.parse(tag.textContent);
+      console.warn('data/season.json could not be loaded (' + reason + ') — using the copy embedded in this page instead.');
+      initSeason(season, true);
+    } catch (e2) {
+      document.querySelector('main').innerHTML = '<div class="empty">Could not load data/season.json — ' + reason + '</div>';
+    }
+  }
+
+  fetch('data/season.json', {cache: 'no-store'}).then(function(r){
+    if (!r.ok) throw new Error('HTTP ' + r.status + ' fetching data/season.json');
+    return r.json();
+  }).then(function(season){
+    initSeason(season, false);
   }).catch(function(err){
-    document.querySelector('main').innerHTML = '<div class="empty">Could not load data/season.json — '+err+'</div>';
+    loadEmbeddedFallback(err);
   });
 })();
 </script>
