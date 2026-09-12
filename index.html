@@ -1,0 +1,544 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Highland Elite Swarm 12/13 — Match Analytics</title>
+<link rel="icon" href="assets/logo.png">
+<style>
+  :root{
+    --accent:#6e3fa3; --accent-strong:#3b1f63; --accent-soft:#efe6f8;
+    --series-own:#4a3aa7; --series-own-lt:#9085e9;
+    --series-opp:#eb6834; --series-opp-lt:#d95926;
+    --bg:#faf9f6; --card:#ffffff; --line:#e3ded0; --text:#1c2620; --text-dim:#5b675f; --text-mute:#8a938c;
+    --good-bg:#eaf7ec; --good-line:#bfe2c5; --good-text:#0f5d24;
+    --bad-bg:#fcefec; --bad-line:#f0c9c0; --bad-text:#8a2c21;
+    --warn-bg:#fdf4e3; --warn-line:#eed9a8; --warn-text:#8a6115;
+    --radius:12px;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --accent:#b48ee0; --accent-strong:#d9c3f5; --accent-soft:#2c2140;
+      --series-own:#9085e9; --series-own-lt:#4a3aa7;
+      --series-opp:#eb6834; --series-opp-lt:#d95926;
+      --bg:#15131a; --card:#1e1c26; --line:#33303e; --text:#f1eef7; --text-dim:#b3aec2; --text-mute:#8a8598;
+      --good-bg:#153322; --good-line:#22502f; --good-text:#7fd694;
+      --bad-bg:#3a1e19; --bad-line:#5c2c22; --bad-text:#f0a58f;
+      --warn-bg:#332a13; --warn-line:#5c4c1f; --warn-text:#e8c675;
+    }
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; background:var(--bg); color:var(--text); line-height:1.5; padding-bottom:60px;}
+  a{color:var(--accent);}
+  img{max-width:100%;}
+
+  header.top{
+    background:linear-gradient(135deg, var(--accent-strong), var(--accent) 70%);
+    color:#fff; padding:28px 20px 26px;
+  }
+  .top-inner{max-width:1180px; margin:0 auto; display:flex; align-items:center; gap:16px; flex-wrap:wrap;}
+  .crest{width:52px; height:52px; border-radius:12px; background:rgba(255,255,255,.15); border:1px solid rgba(255,255,255,.3); padding:5px; flex:none;}
+  .crest img{width:100%; height:100%; object-fit:contain; display:block;}
+  .titles{flex:1; min-width:200px;}
+  .titles h1{margin:0; font-size:1.5rem; font-weight:800; letter-spacing:.2px;}
+  .titles .sub{font-size:.82rem; opacity:.85; margin-top:2px;}
+  .record-chip{background:rgba(255,255,255,.15); border:1px solid rgba(255,255,255,.32); border-radius:10px; padding:8px 16px; text-align:center; flex:none;}
+  .record-chip .k{font-size:.62rem; text-transform:uppercase; letter-spacing:1px; opacity:.8;}
+  .record-chip .v{font-size:1.15rem; font-weight:800;}
+
+  main{max-width:1180px; margin:0 auto; padding:22px 20px 10px;}
+
+  /* filter bar */
+  .filter-bar{
+    background:var(--card); border:1px solid var(--line); border-radius:var(--radius);
+    padding:14px 16px; margin-bottom:22px; display:flex; flex-wrap:wrap; gap:10px; align-items:center;
+  }
+  .filter-bar .lbl{font-size:.72rem; text-transform:uppercase; letter-spacing:.6px; color:var(--text-mute); font-weight:700; margin-right:4px;}
+  .chip{
+    border:1px solid var(--line); background:var(--bg); color:var(--text-dim); border-radius:999px;
+    padding:7px 14px; font-size:.85rem; cursor:pointer; user-select:none; white-space:nowrap;
+    display:flex; align-items:center; gap:7px; transition:background .12s, color .12s, border-color .12s;
+  }
+  .chip .result-dot{width:7px; height:7px; border-radius:50%; flex:none;}
+  .chip.active{background:var(--accent); border-color:var(--accent); color:#fff;}
+  .chip.active .result-dot{background:#fff;}
+  .chip:not(.active):hover{border-color:var(--accent);}
+  .chip.all{font-weight:700;}
+  .filter-note{font-size:.76rem; color:var(--text-mute); margin-left:auto;}
+
+  section{margin-bottom:30px;}
+  h2.stitle{font-size:1.05rem; color:var(--accent-strong); border-bottom:2px solid var(--accent); padding-bottom:6px; margin:0 0 4px;}
+  @media (prefers-color-scheme: dark){ h2.stitle{color:var(--accent-strong);} }
+  .slede{font-size:.86rem; color:var(--text-dim); margin:6px 0 14px;}
+
+  /* KPI strip */
+  .kpi-strip{display:grid; grid-template-columns:repeat(5,1fr); gap:10px;}
+  .kpi-box{background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:12px 14px;}
+  .kpi-box .lbl{font-size:.68rem; text-transform:uppercase; letter-spacing:.5px; color:var(--text-mute); font-weight:700; margin-bottom:5px;}
+  .kpi-box .val{font-size:1.5rem; font-weight:800;}
+  .kpi-box .val .unit{font-size:.72rem; color:var(--text-mute); font-weight:500; margin-left:2px;}
+  .kpi-box .sub{font-size:.72rem; color:var(--text-dim); margin-top:2px;}
+  @media (max-width:820px){ .kpi-strip{grid-template-columns:repeat(2,1fr);} }
+
+  /* match cards */
+  .match-card{background:var(--card); border:1px solid var(--line); border-radius:var(--radius); overflow:hidden; margin-bottom:14px;}
+  .match-head{display:flex; align-items:center; justify-content:space-between; padding:12px 16px; background:var(--accent-soft); border-bottom:1px solid var(--line); flex-wrap:wrap; gap:8px;}
+  .match-head .opp{font-weight:800; font-size:1rem;}
+  .match-head .date{font-size:.76rem; color:var(--text-dim);}
+  .match-score{font-size:1.3rem; font-weight:800; display:flex; align-items:center; gap:8px;}
+  .result-chip{font-size:.68rem; font-weight:800; padding:3px 9px; border-radius:999px;}
+  .result-chip.W{background:var(--good-bg); color:var(--good-text);}
+  .result-chip.D{background:var(--warn-bg); color:var(--warn-text);}
+  .result-chip.L{background:var(--bad-bg); color:var(--bad-text);}
+  .match-body{padding:14px 16px; display:flex; gap:20px; flex-wrap:wrap;}
+  .match-stats{flex:1; min-width:220px;}
+  .stat-line{display:flex; justify-content:space-between; font-size:.84rem; padding:5px 0; border-bottom:1px dotted var(--line);}
+  .stat-line:last-child{border-bottom:none;}
+  .stat-line .k{color:var(--text-dim);}
+  .stat-line .v{font-weight:700;}
+  .match-note{flex:1; min-width:220px; background:var(--bg); border-left:3px solid var(--accent); border-radius:0 8px 8px 0; padding:10px 12px; font-size:.82rem; color:var(--text-dim);}
+  .match-note .lbl{font-size:.68rem; text-transform:uppercase; letter-spacing:.5px; color:var(--accent); font-weight:700; margin-bottom:4px;}
+
+  /* zones */
+  .zone-cols{display:flex; gap:20px; flex-wrap:wrap;}
+  .zone-block{flex:1; min-width:240px;}
+  .zone-block h4{font-size:.88rem; margin:0 0 2px;}
+  .zone-block .zsub{font-size:.72rem; color:var(--text-mute); margin-bottom:10px;}
+  .zrow{display:flex; align-items:center; gap:8px; margin-bottom:8px;}
+  .zrow .zl{width:64px; font-size:.76rem; color:var(--text-dim); font-weight:700; flex:none;}
+  .ztrack{flex:1; height:11px; background:var(--line); border-radius:6px; overflow:hidden;}
+  .zfill{height:100%; border-radius:6px;}
+  .zrow .zv{width:34px; text-align:right; font-size:.78rem; font-weight:700; flex:none;}
+
+  /* game breakdown */
+  .gb-match{background:var(--card); border:1px solid var(--line); border-radius:var(--radius); margin-bottom:16px; overflow:hidden;}
+  .gb-head{display:flex; align-items:center; justify-content:space-between; padding:12px 16px; background:var(--accent-soft); border-bottom:1px solid var(--line); flex-wrap:wrap; gap:6px;}
+  .gb-head .opp{font-weight:800;}
+  .gb-head .date{font-size:.76rem; color:var(--text-dim);}
+  .gb-timeline{position:relative; padding:20px 20px 12px; overflow-x:auto;}
+  .gb-timeline .line{position:absolute; left:20px; right:20px; top:33px; height:2px; background:var(--line);}
+  .gb-tl-row{display:flex; position:relative; min-width:max-content; gap:26px;}
+  .gb-tl-pt{flex:1; min-width:74px; text-align:center; position:relative;}
+  .gb-tl-pt .dot{width:11px; height:11px; border-radius:50%; margin:0 auto 6px; border:2px solid var(--card); box-shadow:0 0 0 1px var(--line); position:relative; z-index:1;}
+  .gb-tl-pt.own .dot{background:var(--series-own);}
+  .gb-tl-pt.opp .dot{background:var(--series-opp);}
+  .gb-tl-pt .min{font-size:.68rem; color:var(--text-mute); font-weight:700;}
+  .gb-tl-pt .who{font-size:.72rem; font-weight:700; margin-top:1px;}
+  .gb-tl-pt .sc{font-size:.92rem; font-weight:800; margin-top:1px;}
+  .gb-cols{display:flex; gap:14px; padding:6px 16px 16px; flex-wrap:wrap;}
+  .gb-col{flex:1; min-width:260px; border-radius:10px; padding:12px 14px; border:1px solid;}
+  .gb-col.own{background:var(--accent-soft); border-color:var(--accent);}
+  .gb-col.opp{background:var(--bad-bg); border-color:var(--bad-line);}
+  .gb-col h4{font-size:.88rem; margin:0 0 9px;}
+  .gb-col.own h4{color:var(--accent-strong);}
+  .gb-col.opp h4{color:var(--bad-text);}
+  .gb-item{display:flex; gap:9px; margin-bottom:9px; align-items:flex-start;}
+  .gb-item:last-child{margin-bottom:0;}
+  .gb-badge{flex:none; width:42px; height:32px; border-radius:7px; display:flex; flex-direction:column; align-items:center; justify-content:center; font-weight:800; color:#fff;}
+  .gb-col.own .gb-badge{background:var(--accent);}
+  .gb-col.opp .gb-badge{background:#b23a26;}
+  .gb-badge .m{font-size:.78rem; line-height:1;}
+  .gb-badge .j{font-size:.6rem; font-weight:500; opacity:.9;}
+  .gb-txt{font-size:.8rem; line-height:1.4; color:var(--text-dim);}
+  .gb-txt b{color:var(--text);}
+  .gb-cue{font-size:.72rem; color:var(--text-mute); padding:0 16px 14px; font-style:italic;}
+
+  /* players */
+  .roster-toolbar{display:flex; align-items:center; gap:10px; margin-bottom:10px; flex-wrap:wrap;}
+  .roster-toolbar input[type=search]{
+    background:var(--card); border:1px solid var(--line); border-radius:8px; padding:7px 11px; font-size:.85rem; color:var(--text); flex:1; min-width:160px;
+  }
+  .table-wrap{overflow-x:auto; border:1px solid var(--line); border-radius:var(--radius); background:var(--card);}
+  table.stats{width:100%; border-collapse:collapse; font-size:.78rem; white-space:nowrap;}
+  table.stats th{
+    background:var(--accent-soft); color:var(--accent-strong); font-size:.66rem; text-transform:uppercase; letter-spacing:.3px;
+    font-weight:700; padding:8px 10px; border-bottom:2px solid var(--accent); text-align:right; cursor:pointer; position:sticky; top:0;
+  }
+  table.stats th:first-child, table.stats td:first-child{text-align:left; position:sticky; left:0; background:var(--card); z-index:1;}
+  table.stats th:first-child{background:var(--accent-soft); z-index:2;}
+  table.stats td{padding:7px 10px; text-align:right; border-bottom:1px solid var(--line);}
+  table.stats tbody tr:nth-child(even) td{background:rgba(110,63,163,.04);}
+  table.stats tbody tr:hover td{background:var(--accent-soft);}
+  table.stats td:first-child{font-weight:800;}
+
+  .foot{max-width:1180px; margin:30px auto 0; padding:16px 20px; border-top:1px solid var(--line); font-size:.76rem; color:var(--text-mute);}
+  .empty{padding:30px; text-align:center; color:var(--text-mute); font-size:.9rem;}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="top-inner">
+    <div class="crest"><img id="crestImg" src="assets/logo.png" alt="Team crest"></div>
+    <div class="titles">
+      <h1 id="teamName">Highland Elite Swarm 12/13</h1>
+      <div class="sub" id="teamSub">Match analytics from Veo Analytics Studio</div>
+    </div>
+    <div class="record-chip">
+      <div class="k">Record</div>
+      <div class="v" id="recordVal">–</div>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="filter-bar" id="filterBar">
+    <span class="lbl">Games</span>
+    <!-- chips injected by JS -->
+  </div>
+
+  <section>
+    <h2 class="stitle">Snapshot</h2>
+    <p class="slede" id="snapshotLede"></p>
+    <div class="kpi-strip" id="kpiStrip"></div>
+  </section>
+
+  <section>
+    <h2 class="stitle">Match-by-match</h2>
+    <p class="slede">Full Analytics 2 figures for each selected match.</p>
+    <div id="matchCards"></div>
+  </section>
+
+  <section>
+    <h2 class="stitle">Game breakdown — key moments</h2>
+    <p class="slede">Every shot and goal Veo's AI tagged. For each selected game: our two best attacking moments, and the opponent's two best scoring chances — cue the film to the minute shown.</p>
+    <div id="gbCards"></div>
+  </section>
+
+  <section>
+    <h2 class="stitle">Field zones</h2>
+    <p class="slede">Where the team's passes and time-on-ball happen, by pitch third (own team, averaged across the selected games).</p>
+    <div class="zone-cols" id="zoneCols"></div>
+  </section>
+
+  <section>
+    <h2 class="stitle">Full roster — player stats</h2>
+    <p class="slede">Every player who logged minutes in the selected game(s). Click a column header to sort. Jerseys aren't yet linked to names in Veo.</p>
+    <div class="roster-toolbar">
+      <input type="search" id="playerSearch" placeholder="Filter by jersey #…">
+    </div>
+    <div class="table-wrap">
+      <table class="stats" id="playerTable">
+        <thead><tr id="playerTableHead"></tr></thead>
+        <tbody id="playerTableBody"></tbody>
+      </table>
+    </div>
+  </section>
+</main>
+
+<div class="foot">
+  Source: Veo Analytics Studio, Highland YSC (Highland Elite Swarm 12/13). Data pulled from Veo's Player Stats table and match Events panel. Edit <code>data/season.json</code> directly to fix a note or typo, or come back to Claude to pull the next match.
+</div>
+
+<script>
+(function(){
+  var state = { season: null, selected: new Set(), sortKey: 'goals', sortDir: 'desc' };
+
+  function fmtDate(iso){
+    var d = new Date(iso + 'T00:00:00');
+    return d.toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'});
+  }
+
+  function el(tag, cls, html){
+    var e = document.createElement(tag);
+    if(cls) e.className = cls;
+    if(html !== undefined) e.innerHTML = html;
+    return e;
+  }
+
+  function selectedMatches(){
+    return state.season.matches.filter(function(m){ return state.selected.has(m.id); });
+  }
+
+  // ---------------- filter bar ----------------
+  function renderFilterBar(){
+    var bar = document.getElementById('filterBar');
+    bar.querySelectorAll('.chip').forEach(function(c){ c.remove(); });
+
+    var allChip = el('div', 'chip all' + (state.selected.size === state.season.matches.length ? ' active' : ''), 'All games');
+    allChip.onclick = function(){
+      state.selected = new Set(state.season.matches.map(function(m){ return m.id; }));
+      renderAll();
+    };
+    bar.appendChild(allChip);
+
+    state.season.matches.forEach(function(m){
+      var active = state.selected.has(m.id);
+      var chip = el('div', 'chip' + (active ? ' active' : ''));
+      var dot = el('span', 'result-dot');
+      dot.style.background = active ? '#fff' : (m.result === 'W' ? '#2fae4e' : m.result === 'D' ? '#c9a227' : '#d1483a');
+      chip.appendChild(dot);
+      chip.appendChild(document.createTextNode('vs ' + m.opponent.split(' ')[0] + ' ' + m.scoreFor + '–' + m.scoreAgainst));
+      chip.onclick = function(){
+        if(state.selected.has(m.id)){
+          if(state.selected.size > 1) state.selected.delete(m.id);
+        } else {
+          state.selected.add(m.id);
+        }
+        renderAll();
+      };
+      bar.appendChild(chip);
+    });
+
+    var note = document.getElementById('filterNote');
+  }
+
+  // ---------------- snapshot / KPIs ----------------
+  function renderSnapshot(matches){
+    var lede = document.getElementById('snapshotLede');
+    if(matches.length === 0){ lede.textContent = 'No games selected.'; document.getElementById('kpiStrip').innerHTML=''; return; }
+    var names = matches.map(function(m){ return 'vs. ' + m.opponent + ' (' + fmtDate(m.date) + ', ' + m.result + ' ' + m.scoreFor + '–' + m.scoreAgainst + ')'; });
+    lede.textContent = (matches.length === 1 ? 'Showing: ' : 'Averages across ' + matches.length + ' games: ') + names.join('; ');
+
+    var gf = sum(matches, 'scoreFor'), ga = sum(matches, 'scoreAgainst');
+    var sf = sum(matches, 'shotsFor'), sa = sum(matches, 'shotsAgainst');
+    var af = sum(matches, 'attemptsFor'), aa = sum(matches, 'attemptsAgainst');
+    var poss = avg(matches, 'possession');
+    var convF = af > 0 ? Math.round(gf / af * 100) : 0;
+    var convA = aa > 0 ? Math.round(ga / aa * 100) : 0;
+    var n = matches.length;
+
+    var kpis = [
+      {lbl:'Possession', val: poss.toFixed(0), unit:'%', sub:'average'},
+      {lbl:'Goals scored', val:(gf/n).toFixed(1), unit:'/ match', sub: gf + ' total'},
+      {lbl:'Goals conceded', val:(ga/n).toFixed(1), unit:'/ match', sub: ga + ' total'},
+      {lbl:'Shot conversion', val: convF, unit:'%', sub: 'vs. ' + convA + '% conceded'},
+      {lbl:'Attempts', val:(af/n).toFixed(1), unit:'for', sub:(aa/n).toFixed(1) + ' against, per match'}
+    ];
+    var strip = document.getElementById('kpiStrip');
+    strip.innerHTML = '';
+    kpis.forEach(function(k){
+      var box = el('div','kpi-box');
+      box.innerHTML = '<div class="lbl">'+k.lbl+'</div><div class="val">'+k.val+'<span class="unit">'+k.unit+'</span></div><div class="sub">'+k.sub+'</div>';
+      strip.appendChild(box);
+    });
+
+    var w = matches.filter(function(m){return m.result==='W';}).length;
+    var d = matches.filter(function(m){return m.result==='D';}).length;
+    var l = matches.filter(function(m){return m.result==='L';}).length;
+    document.getElementById('recordVal').textContent = w+'W–'+d+'D–'+l+'L';
+  }
+
+  function sum(arr, key){ return arr.reduce(function(a,m){ return a + m[key]; }, 0); }
+  function avg(arr, key){ return arr.length ? sum(arr,key)/arr.length : 0; }
+
+  // ---------------- match cards ----------------
+  function renderMatchCards(matches){
+    var wrap = document.getElementById('matchCards');
+    wrap.innerHTML = '';
+    if(matches.length === 0){ wrap.appendChild(el('div','empty','Select at least one game.')); return; }
+    matches.forEach(function(m){
+      var card = el('div','match-card');
+      card.innerHTML =
+        '<div class="match-head">'+
+          '<div><div class="opp">vs. '+m.opponent+'</div><div class="date">'+fmtDate(m.date)+' · '+m.homeAway+'</div></div>'+
+          '<div class="match-score"><span class="result-chip '+m.result+'">'+(m.result==='W'?'WIN':m.result==='D'?'DRAW':'LOSS')+'</span>'+m.scoreFor+'–'+m.scoreAgainst+'</div>'+
+        '</div>'+
+        '<div class="match-body">'+
+          '<div class="match-stats">'+
+            statLine('Possession', m.possession+'%')+
+            statLine('Shots (for / against)', m.shotsFor+' / '+m.shotsAgainst)+
+            statLine('Total attempts (for / against)', m.attemptsFor+' / '+m.attemptsAgainst)+
+            statLine('Conversion (for / against)', m.convFor+'% / '+m.convAgainst+'%')+
+            statLine('Pass thirds — def / mid / att', m.passThirds.def+'% / '+m.passThirds.mid+'% / '+m.passThirds.att+'%')+
+            statLine('Possession thirds — def / mid / att', m.possThirds.def+'% / '+m.possThirds.mid+'% / '+m.possThirds.att+'%')+
+          '</div>'+
+          '<div class="match-note"><div class="lbl">Read</div>'+m.read+'</div>'+
+        '</div>';
+      wrap.appendChild(card);
+    });
+  }
+  function statLine(k,v){ return '<div class="stat-line"><span class="k">'+k+'</span><span class="v">'+v+'</span></div>'; }
+
+  // ---------------- zones ----------------
+  function renderZones(matches){
+    var wrap = document.getElementById('zoneCols');
+    wrap.innerHTML = '';
+    if(matches.length === 0) return;
+    var pass = {def: avg(matches.map(function(m){return {v:m.passThirds.def};}),'v'),
+                mid: avg(matches.map(function(m){return {v:m.passThirds.mid};}),'v'),
+                att: avg(matches.map(function(m){return {v:m.passThirds.att};}),'v')};
+    var poss = {def: avg(matches.map(function(m){return {v:m.possThirds.def};}),'v'),
+                mid: avg(matches.map(function(m){return {v:m.possThirds.mid};}),'v'),
+                att: avg(matches.map(function(m){return {v:m.possThirds.att};}),'v')};
+    wrap.appendChild(zoneBlock('Pass location', 'Share of own-team passes played in each third', pass));
+    wrap.appendChild(zoneBlock('Possession location', 'Share of own-team possession time spent in each third', poss));
+  }
+  function zoneBlock(title, sub, vals){
+    var b = el('div','zone-block');
+    b.innerHTML = '<h4>'+title+'</h4><div class="zsub">'+sub+'</div>'+
+      zrow('Defensive', vals.def, 'var(--series-own)')+
+      zrow('Middle', vals.mid, 'var(--accent)')+
+      zrow('Attacking', vals.att, '#c98a2e');
+    return b;
+  }
+  function zrow(label, val, color){
+    val = Math.round(val);
+    return '<div class="zrow"><span class="zl">'+label+'</span><div class="ztrack"><div class="zfill" style="width:'+val+'%; background:'+color+';"></div></div><span class="zv">'+val+'%</span></div>';
+  }
+
+  // ---------------- game breakdown ----------------
+  function renderGB(matches){
+    var wrap = document.getElementById('gbCards');
+    wrap.innerHTML = '';
+    if(matches.length === 0){ wrap.appendChild(el('div','empty','Select at least one game.')); return; }
+    matches.forEach(function(m){
+      var mo = m.moments;
+      var card = el('div','gb-match');
+      var tl = mo.timeline.map(function(t){
+        return '<div class="gb-tl-pt '+t.team+'"><div class="dot"></div><div class="min">'+t.minute+'’</div>'+
+               '<div class="who">'+(t.team==='own'?'HES':oppAbbr(m.opponent))+' #'+t.jersey+'</div><div class="sc">'+t.score+'</div></div>';
+      }).join('');
+      var ownItems = mo.own.map(function(it){ return gbItem(it,'own'); }).join('');
+      var oppItems = mo.opp.map(function(it){ return gbItem(it,'opp'); }).join('');
+      var ownLog = mo.fullLog.own.map(function(e){ return e.minute+'’'+(e.jersey!=null?' #'+e.jersey:'')+(e.isGoal?' (goal, '+e.score+')':''); }).join(', ');
+      var oppLog = mo.fullLog.opp.map(function(e){ return e.minute+'’'+(e.jersey!=null?' #'+e.jersey:'')+(e.isGoal?' (goal, '+e.score+')':''); }).join(', ');
+
+      card.innerHTML =
+        '<div class="gb-head"><div class="opp">vs. '+m.opponent+'</div><div class="date">'+fmtDate(m.date)+' · Final '+m.scoreFor+'–'+m.scoreAgainst+'</div></div>'+
+        '<div class="gb-timeline"><div class="line"></div><div class="gb-tl-row">'+tl+'</div></div>'+
+        '<div class="gb-cols">'+
+          '<div class="gb-col own"><h4>&#9679; Our best attacking moments</h4>'+ownItems+'</div>'+
+          '<div class="gb-col opp"><h4>&#9679; '+m.opponent.split(' ')[0]+'’s best chances</h4>'+oppItems+'</div>'+
+        '</div>'+
+        '<div class="gb-cue">Full shot log — HES: '+ownLog+'. '+m.opponent.split(' ')[0]+': '+oppLog+'.</div>';
+      wrap.appendChild(card);
+    });
+  }
+  function oppAbbr(name){ return name.split(' ')[0].slice(0,3).toUpperCase(); }
+  function gbItem(it, side){
+    return '<div class="gb-item"><div class="gb-badge"><div class="m">'+it.minute+'’</div><div class="j">#'+it.jersey+'</div></div>'+
+           '<div class="gb-txt">'+it.note.replace(/^([A-Z ]+—[^.]+\.)/,'<b>$1</b>')+'</div></div>';
+  }
+
+  // ---------------- players ----------------
+  var PLAYER_COLS = [
+    {key:'jersey', label:'Player', numeric:false},
+    {key:'minutes', label:'Min'},
+    {key:'goals', label:'G'},
+    {key:'assists', label:'A'},
+    {key:'shots', label:'Sh'},
+    {key:'conversionRate', label:'Conv%', fmt:pctFmt},
+    {key:'passesDisplay', label:'Passes (S/T)', numeric:false, sortKey:'passesSuccessful'},
+    {key:'passSuccessRate', label:'Pass%', fmt:pctFmt},
+    {key:'tackles', label:'Tkl'},
+    {key:'interceptions', label:'Int'},
+    {key:'highIntensityRuns', label:'HI Runs'},
+    {key:'sprints', label:'Sprints'},
+    {key:'distanceMi', label:'Dist (mi)', fmt:oneDec},
+    {key:'avgSpeedMph', label:'Avg (mph)', fmt:oneDec},
+    {key:'topSpeedMph', label:'Top (mph)', fmt:oneDec}
+  ];
+  function pctFmt(v){ return Math.round(v) + '%'; }
+  function oneDec(v){ return (Math.round(v*10)/10).toFixed(1); }
+
+  function mergePlayers(matches){
+    var byJersey = {};
+    matches.forEach(function(m){
+      m.players.forEach(function(p){
+        var j = p.jersey;
+        if(!byJersey[j]){
+          byJersey[j] = Object.assign({}, p, {
+            _matchesPlayed: 0, _speedWeighted: 0
+          });
+          byJersey[j]._matchesPlayed = 1;
+          byJersey[j]._speedWeighted = p.avgSpeedMph * p.minutes;
+          return;
+        }
+        var acc = byJersey[j];
+        ['minutes','goals','assists','shots','totalAttempts','passes','passesSuccessful','passesUnsuccessful',
+         'dribbles','goalInvolvements','tackles','interceptions','highIntensityRuns','sprints','distanceMi',
+         'fouls','throwIns','freeKicks','cornersEvents','looseBallRecoveries','totalEvents'].forEach(function(k){
+          acc[k] = (acc[k]||0) + (p[k]||0);
+        });
+        acc.topSpeedMph = Math.max(acc.topSpeedMph||0, p.topSpeedMph||0);
+        acc._speedWeighted += p.avgSpeedMph * p.minutes;
+        acc._matchesPlayed += 1;
+      });
+    });
+    return Object.keys(byJersey).map(function(j){
+      var p = byJersey[j];
+      p.conversionRate = p.totalAttempts > 0 ? (p.goals / p.totalAttempts * 100) : 0;
+      p.passSuccessRate = p.passes > 0 ? (p.passesSuccessful / p.passes * 100) : 0;
+      p.avgSpeedMph = p.minutes > 0 ? (p._speedWeighted / p.minutes) : 0;
+      p.passesDisplay = p.passesSuccessful + '/' + p.passes;
+      return p;
+    });
+  }
+
+  function renderPlayerTable(matches){
+    var players = mergePlayers(matches);
+    var q = (document.getElementById('playerSearch').value || '').trim();
+    if(q) players = players.filter(function(p){ return String(p.jersey).indexOf(q) !== -1; });
+
+    var sortCol = PLAYER_COLS.find(function(c){ return c.key === state.sortKey || c.sortKey === state.sortKey; });
+    var sk = sortCol ? (sortCol.sortKey || sortCol.key) : 'goals';
+    players.sort(function(a,b){
+      var av = a[sk], bv = b[sk];
+      if(typeof av === 'string') { av = parseFloat(av)||0; bv = parseFloat(bv)||0; }
+      return state.sortDir === 'asc' ? (av-bv) : (bv-av);
+    });
+
+    var thead = document.getElementById('playerTableHead');
+    thead.innerHTML = '';
+    PLAYER_COLS.forEach(function(c){
+      var th = el('th', null, c.label + (state.sortKey === (c.sortKey||c.key) ? (state.sortDir==='desc'?' ▾':' ▴') : ''));
+      th.onclick = function(){
+        var k = c.sortKey || c.key;
+        if(state.sortKey === k){ state.sortDir = state.sortDir === 'desc' ? 'asc' : 'desc'; }
+        else { state.sortKey = k; state.sortDir = 'desc'; }
+        renderPlayerTable(selectedMatches());
+      };
+      thead.appendChild(th);
+    });
+
+    var tbody = document.getElementById('playerTableBody');
+    tbody.innerHTML = '';
+    if(players.length === 0){
+      var tr = document.createElement('tr');
+      var td = el('td', null, 'No players in the selected game(s).');
+      td.colSpan = PLAYER_COLS.length; td.style.textAlign='center'; td.style.padding='24px'; td.style.color='var(--text-mute)';
+      tr.appendChild(td); tbody.appendChild(tr);
+      return;
+    }
+    players.forEach(function(p){
+      var tr = document.createElement('tr');
+      PLAYER_COLS.forEach(function(c){
+        var td = document.createElement('td');
+        if(c.key === 'jersey'){ td.textContent = '#' + p.jersey; }
+        else if(c.key === 'passesDisplay'){ td.textContent = p.passesDisplay; }
+        else { var v = p[c.key]; td.textContent = c.fmt ? c.fmt(v) : v; }
+        tr.appendChild(td);
+      });
+      tbody.appendChild(tr);
+    });
+  }
+
+  // ---------------- wire up ----------------
+  function renderAll(){
+    var matches = selectedMatches();
+    renderFilterBar();
+    renderSnapshot(matches);
+    renderMatchCards(matches);
+    renderGB(matches);
+    renderZones(matches);
+    renderPlayerTable(matches);
+  }
+
+  document.getElementById('playerSearch').addEventListener('input', function(){ renderPlayerTable(selectedMatches()); });
+
+  fetch('data/season.json').then(function(r){ return r.json(); }).then(function(season){
+    state.season = season;
+    state.selected = new Set(season.matches.map(function(m){ return m.id; }));
+    document.getElementById('teamName').textContent = season.team.name;
+    document.getElementById('teamSub').textContent = season.team.club + ' · Veo Analytics Studio';
+    document.getElementById('crestImg').src = season.team.logo;
+    renderAll();
+  }).catch(function(err){
+    document.querySelector('main').innerHTML = '<div class="empty">Could not load data/season.json — '+err+'</div>';
+  });
+})();
+</script>
+</body>
+</html>
