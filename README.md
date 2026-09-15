@@ -84,6 +84,41 @@ the top level). If they're in the wrong place, delete them and re-upload by drag
 structure when you drag a folder directly. It's also worth waiting a minute or two after any
 commit — GitHub Pages takes a short moment to rebuild.
 
+## Interactive drill-down
+
+Click just about any number on the page and a detail panel pops up:
+
+- **Click a player's row** in the roster table to open their full profile — every stat Veo
+  tracks, not just the columns shown in the table. Inside that panel you can pick "All games,"
+  a single match, or any combination, and every number recalculates to match — that's how you
+  see a single-game stat line versus a stretch of the season.
+- **Click a KPI tile** (Possession, Goals scored, etc.) or a **field-zone bar** to see that
+  number broken out game by game, with the same game-picker.
+- There's currently no photo or name for players (Veo's lineups aren't finalized for either
+  match yet — see the note below), so each profile uses the jersey number as its identifier and
+  a plain avatar circle in its place. Once lineups are assigned in Veo (or if you send player
+  photos separately), a future update can swap in real names and pictures.
+
+## Exporting to CSV / a printed report
+
+Every section (Snapshot, Match-by-match, Game breakdown, Field zones, Full roster) has a small
+**"⤓ Export"** button in its header, and every player/metric detail panel has one too. Clicking
+it adds that section's *currently filtered* view to a running queue — you'll see a "Master
+export" button appear in the bottom-right corner of the page with a count.
+
+Click that **Master export** button any time to review everything you've queued: uncheck
+anything you don't want, remove items outright, then either:
+
+- **Download combined CSV** — one `.csv` file with every checked section, clearly labeled, ready
+  to open in Excel/Sheets or hand to a coach.
+- **Final print / PDF** — opens your browser's print dialog with a clean, landscape-formatted
+  layout of just the checked sections. Choose "Save as PDF" there instead of a physical printer
+  if you want a PDF file.
+
+This all happens in your browser — nothing is uploaded anywhere, and the queue resets when you
+reload the page (it's meant for "build a report, download or print it, done," not as
+long-term storage).
+
 ## Notes on the data
 
 - Only matches with Veo's **Analytics 2** tier and a finalized lineup show full player-level

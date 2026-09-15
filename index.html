@@ -68,9 +68,83 @@
   .filter-note{font-size:.76rem; color:var(--text-mute); margin-left:auto;}
 
   section{margin-bottom:30px;}
-  h2.stitle{font-size:1.05rem; color:var(--accent-strong); border-bottom:2px solid var(--accent); padding-bottom:6px; margin:0 0 4px;}
+  .sec-head{display:flex; align-items:baseline; justify-content:space-between; gap:10px; border-bottom:2px solid var(--accent); padding-bottom:6px; margin:0 0 4px; flex-wrap:wrap;}
+  h2.stitle{font-size:1.05rem; color:var(--accent-strong); margin:0;}
   @media (prefers-color-scheme: dark){ h2.stitle{color:var(--accent-strong);} }
   .slede{font-size:.86rem; color:var(--text-dim); margin:6px 0 14px;}
+
+  .export-btn{
+    flex:none; background:var(--card); border:1px solid var(--line); color:var(--accent-strong);
+    border-radius:7px; padding:5px 11px; font-size:.72rem; font-weight:700; cursor:pointer;
+    display:flex; align-items:center; gap:5px; white-space:nowrap;
+  }
+  .export-btn:hover{border-color:var(--accent); background:var(--accent-soft);}
+  .export-btn:active{transform:translateY(1px);}
+
+  /* export FAB + toast */
+  .export-fab{
+    position:fixed; right:18px; bottom:18px; z-index:900; background:var(--accent-strong); color:#fff;
+    border:none; border-radius:999px; padding:12px 18px; font-size:.85rem; font-weight:700; cursor:pointer;
+    box-shadow:0 8px 24px rgba(0,0,0,.28); display:flex; align-items:center; gap:8px;
+  }
+  .export-fab:hover{background:var(--accent);}
+  .export-fab .count{background:rgba(255,255,255,.25); border-radius:999px; padding:1px 8px; font-size:.76rem;}
+  .toast{
+    position:fixed; left:50%; bottom:80px; transform:translateX(-50%); background:var(--text); color:var(--bg);
+    padding:9px 16px; border-radius:8px; font-size:.8rem; z-index:1100; opacity:0; pointer-events:none;
+    transition:opacity .2s;
+  }
+  .toast.show{opacity:.95;}
+
+  /* modals */
+  .modal-overlay{position:fixed; inset:0; background:rgba(10,8,18,.55); display:flex; align-items:center; justify-content:center; padding:20px; z-index:1000;}
+  .modal-panel{background:var(--card); border-radius:16px; max-width:760px; width:100%; max-height:88vh; overflow-y:auto; box-shadow:0 20px 60px rgba(0,0,0,.35); border:1px solid var(--line);}
+  .modal-head{display:flex; align-items:center; gap:14px; padding:16px 20px; border-bottom:1px solid var(--line); background:var(--accent-soft); position:sticky; top:0; z-index:2; border-radius:16px 16px 0 0;}
+  .modal-avatar{width:52px; height:52px; border-radius:50%; background:linear-gradient(135deg,var(--accent-strong),var(--accent)); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:1rem; flex:none; box-shadow:0 0 0 3px var(--card);}
+  .modal-titles{flex:1; min-width:0;}
+  .modal-titles h3{margin:0; font-size:1.1rem;}
+  .modal-titles .sub{font-size:.76rem; color:var(--text-dim); margin-top:2px;}
+  .modal-close{flex:none; width:30px; height:30px; border-radius:50%; border:1px solid var(--line); background:var(--card); color:var(--text-dim); font-size:1rem; cursor:pointer; line-height:1; display:flex; align-items:center; justify-content:center;}
+  .modal-close:hover{background:var(--bad-bg); color:var(--bad-text); border-color:var(--bad-line);}
+  .modal-body{padding:16px 20px 22px;}
+  .modal-scope{display:flex; flex-wrap:wrap; gap:7px; margin-bottom:16px;}
+  .modal-actions{display:flex; gap:8px; margin:14px 0 4px; flex-wrap:wrap;}
+  .modal-section-title{font-size:.74rem; text-transform:uppercase; letter-spacing:.4px; color:var(--accent-strong); font-weight:700; margin:18px 0 8px;}
+  .stat-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(118px,1fr)); gap:9px;}
+  .stat-tile{background:var(--bg); border:1px solid var(--line); border-radius:9px; padding:9px 11px;}
+  .stat-tile .k{font-size:.62rem; text-transform:uppercase; letter-spacing:.3px; color:var(--text-mute); font-weight:700; margin-bottom:3px;}
+  .stat-tile .v{font-size:1.02rem; font-weight:800;}
+  table.modal-table{width:100%; border-collapse:collapse; font-size:.78rem;}
+  table.modal-table th{text-align:right; font-size:.64rem; text-transform:uppercase; letter-spacing:.3px; color:var(--text-mute); padding:6px 8px; border-bottom:2px solid var(--line); background:var(--accent-soft);}
+  table.modal-table th:first-child, table.modal-table td:first-child{text-align:left;}
+  table.modal-table td{padding:6px 8px; border-bottom:1px solid var(--line); text-align:right;}
+  table.modal-table td:first-child{font-weight:700;}
+  table.modal-table tbody tr:nth-child(even) td{background:rgba(110,63,163,.04);}
+
+  /* clickable affordances */
+  .kpi-box, .zrow, table.stats tbody tr{cursor:pointer;}
+  .kpi-box:hover{border-color:var(--accent); box-shadow:0 0 0 1px var(--accent);}
+  .zrow:hover .zl{color:var(--accent-strong);}
+
+  /* master export review */
+  .exp-row{display:flex; align-items:flex-start; gap:10px; padding:10px 0; border-bottom:1px solid var(--line);}
+  .exp-row:last-child{border-bottom:none;}
+  .exp-row input[type=checkbox]{margin-top:3px;}
+  .exp-row .exp-info{flex:1; min-width:0;}
+  .exp-row .exp-title{font-weight:700; font-size:.86rem;}
+  .exp-row .exp-scope{font-size:.74rem; color:var(--text-mute); margin-top:1px;}
+  .exp-remove{flex:none; background:none; border:none; color:var(--bad-text); cursor:pointer; font-size:.78rem; font-weight:700;}
+  .print-only{display:none;}
+  @media print{
+    @page{ size:landscape; margin:12mm; }
+    body *{visibility:hidden;}
+    .print-only, .print-only *{visibility:visible;}
+    .print-only{display:block; position:absolute; left:0; top:0; width:100%; padding:0;}
+    .print-sec{page-break-inside:avoid; margin-bottom:20px;}
+    .print-sec h3{border-bottom:2px solid #333; padding-bottom:3px; font-size:1rem;}
+    .print-sec table{width:100%; border-collapse:collapse; font-size:.66rem; table-layout:auto;}
+    .print-sec th, .print-sec td{border:1px solid #999; padding:3px 6px; text-align:left; vertical-align:top;}
+  }
 
   /* KPI strip */
   .kpi-strip{display:grid; grid-template-columns:repeat(5,1fr); gap:10px;}
@@ -196,32 +270,32 @@
   </div>
 
   <section>
-    <h2 class="stitle">Snapshot</h2>
+    <div class="sec-head"><h2 class="stitle">Snapshot</h2><button class="export-btn" id="expSnapshot" type="button">⤓ Export</button></div>
     <p class="slede" id="snapshotLede"></p>
     <div class="kpi-strip" id="kpiStrip"></div>
   </section>
 
   <section>
-    <h2 class="stitle">Match-by-match</h2>
-    <p class="slede">Full Analytics 2 figures for each selected match.</p>
+    <div class="sec-head"><h2 class="stitle">Match-by-match</h2><button class="export-btn" id="expMatches" type="button">⤓ Export</button></div>
+    <p class="slede">Full Analytics 2 figures for each selected match. Click any stat to see it trend across games.</p>
     <div id="matchCards"></div>
   </section>
 
   <section>
-    <h2 class="stitle">Game breakdown — key moments</h2>
+    <div class="sec-head"><h2 class="stitle">Game breakdown — key moments</h2><button class="export-btn" id="expGB" type="button">⤓ Export</button></div>
     <p class="slede">Every shot and goal Veo's AI tagged. For each selected game: our two best attacking moments, and the opponent's two best scoring chances — cue the film to the minute shown.</p>
     <div id="gbCards"></div>
   </section>
 
   <section>
-    <h2 class="stitle">Field zones</h2>
-    <p class="slede">Where the team's passes and time-on-ball happen, by pitch third (own team, averaged across the selected games).</p>
+    <div class="sec-head"><h2 class="stitle">Field zones</h2><button class="export-btn" id="expZones" type="button">⤓ Export</button></div>
+    <p class="slede">Where the team's passes and time-on-ball happen, by pitch third (own team, averaged across the selected games). Click a bar to see it by game.</p>
     <div class="zone-cols" id="zoneCols"></div>
   </section>
 
   <section>
-    <h2 class="stitle">Full roster — player stats</h2>
-    <p class="slede">Every player who logged minutes in the selected game(s). Click a column header to sort. Jerseys aren't yet linked to names in Veo.</p>
+    <div class="sec-head"><h2 class="stitle">Full roster — player stats</h2><button class="export-btn" id="expRoster" type="button">⤓ Export</button></div>
+    <p class="slede">Every player who logged minutes in the selected game(s). Click a row to open that player's full profile, or a column header to sort. Jerseys aren't yet linked to names in Veo.</p>
     <div class="roster-toolbar">
       <input type="search" id="playerSearch" placeholder="Filter by jersey #…">
     </div>
@@ -237,6 +311,11 @@
 <div class="foot">
   Source: Veo Analytics Studio, Highland YSC (Highland Elite Swarm 12/13). Data pulled from Veo's Player Stats table and match Events panel. Edit <code>data/season.json</code> directly to fix a note or typo, or come back to Claude to pull the next match.
 </div>
+
+<button class="export-fab" id="exportFab" type="button">🧺 Master export <span class="count">0</span></button>
+<div id="toastRoot"></div>
+<div id="modalRoot"></div>
+<div class="print-only" id="printRoot"></div>
 
 <script id="embedded-season-data" type="application/json">
 {
@@ -1364,7 +1443,7 @@
 </script>
 <script>
 (function(){
-  var state = { season: null, selected: new Set(), sortKey: 'goals', sortDir: 'desc' };
+  var state = { season: null, selected: new Set(), sortKey: 'goals', sortDir: 'desc', exportQueue: [] };
 
   function fmtDate(iso){
     var d = new Date(iso + 'T00:00:00');
@@ -1431,17 +1510,25 @@
     var n = matches.length;
 
     var kpis = [
-      {lbl:'Possession', val: poss.toFixed(0), unit:'%', sub:'average'},
-      {lbl:'Goals scored', val:(gf/n).toFixed(1), unit:'/ match', sub: gf + ' total'},
-      {lbl:'Goals conceded', val:(ga/n).toFixed(1), unit:'/ match', sub: ga + ' total'},
-      {lbl:'Shot conversion', val: convF, unit:'%', sub: 'vs. ' + convA + '% conceded'},
-      {lbl:'Attempts', val:(af/n).toFixed(1), unit:'for', sub:(aa/n).toFixed(1) + ' against, per match'}
+      {lbl:'Possession', val: poss.toFixed(0), unit:'%', sub:'average',
+        click:function(){ openMetricModal('Possession', '%', function(m){ return m.possession; }, {isRate:true}); }},
+      {lbl:'Goals scored', val:(gf/n).toFixed(1), unit:'/ match', sub: gf + ' total',
+        click:function(){ openMetricModal('Goals scored', '', function(m){ return m.scoreFor; }, {isRate:false}); }},
+      {lbl:'Goals conceded', val:(ga/n).toFixed(1), unit:'/ match', sub: ga + ' total',
+        click:function(){ openMetricModal('Goals conceded', '', function(m){ return m.scoreAgainst; }, {isRate:false}); }},
+      {lbl:'Shot conversion', val: convF, unit:'%', sub: 'vs. ' + convA + '% conceded',
+        click:function(){ openMetricModal('Shot conversion (for)', '%', function(m){ return m.attemptsFor > 0 ? Math.round(m.scoreFor/m.attemptsFor*100) : 0; }, {isRate:true}); }},
+      {lbl:'Attempts', val:(af/n).toFixed(1), unit:'for', sub:(aa/n).toFixed(1) + ' against, per match',
+        click:function(){ openMetricModal('Attempts (for)', '', function(m){ return m.attemptsFor; }, {isRate:false}); }}
     ];
     var strip = document.getElementById('kpiStrip');
     strip.innerHTML = '';
     kpis.forEach(function(k){
       var box = el('div','kpi-box');
       box.innerHTML = '<div class="lbl">'+k.lbl+'</div><div class="val">'+k.val+'<span class="unit">'+k.unit+'</span></div><div class="sub">'+k.sub+'</div>';
+      box.setAttribute('tabindex','0');
+      box.onclick = k.click;
+      box.onkeydown = function(e){ if(e.key==='Enter' || e.key===' '){ e.preventDefault(); k.click(); } };
       strip.appendChild(box);
     });
 
@@ -1487,26 +1574,31 @@
     var wrap = document.getElementById('zoneCols');
     wrap.innerHTML = '';
     if(matches.length === 0) return;
-    var pass = {def: avg(matches.map(function(m){return {v:m.passThirds.def};}),'v'),
-                mid: avg(matches.map(function(m){return {v:m.passThirds.mid};}),'v'),
-                att: avg(matches.map(function(m){return {v:m.passThirds.att};}),'v')};
-    var poss = {def: avg(matches.map(function(m){return {v:m.possThirds.def};}),'v'),
-                mid: avg(matches.map(function(m){return {v:m.possThirds.mid};}),'v'),
-                att: avg(matches.map(function(m){return {v:m.possThirds.att};}),'v')};
-    wrap.appendChild(zoneBlock('Pass location', 'Share of own-team passes played in each third', pass));
-    wrap.appendChild(zoneBlock('Possession location', 'Share of own-team possession time spent in each third', poss));
+    wrap.appendChild(zoneBlock('Pass location', 'Share of own-team passes played in each third', matches, 'passThirds'));
+    wrap.appendChild(zoneBlock('Possession location', 'Share of own-team possession time spent in each third', matches, 'possThirds'));
   }
-  function zoneBlock(title, sub, vals){
+  function zoneBlock(title, sub, matches, key){
+    var vals = {
+      def: avg(matches.map(function(m){return {v:m[key].def};}),'v'),
+      mid: avg(matches.map(function(m){return {v:m[key].mid};}),'v'),
+      att: avg(matches.map(function(m){return {v:m[key].att};}),'v')
+    };
     var b = el('div','zone-block');
-    b.innerHTML = '<h4>'+title+'</h4><div class="zsub">'+sub+'</div>'+
-      zrow('Defensive', vals.def, 'var(--series-own)')+
-      zrow('Middle', vals.mid, 'var(--accent)')+
-      zrow('Attacking', vals.att, '#c98a2e');
+    var h = el('h4', null, title); b.appendChild(h);
+    b.appendChild(el('div','zsub',sub));
+    b.appendChild(zrow('Defensive', vals.def, 'var(--series-own)', title+' — defensive third', key, 'def'));
+    b.appendChild(zrow('Middle', vals.mid, 'var(--accent)', title+' — middle third', key, 'mid'));
+    b.appendChild(zrow('Attacking', vals.att, '#c98a2e', title+' — attacking third', key, 'att'));
     return b;
   }
-  function zrow(label, val, color){
+  function zrow(label, val, color, modalTitle, key, sub){
     val = Math.round(val);
-    return '<div class="zrow"><span class="zl">'+label+'</span><div class="ztrack"><div class="zfill" style="width:'+val+'%; background:'+color+';"></div></div><span class="zv">'+val+'%</span></div>';
+    var row = el('div','zrow');
+    row.innerHTML = '<span class="zl">'+label+'</span><div class="ztrack"><div class="zfill" style="width:'+val+'%; background:'+color+';"></div></div><span class="zv">'+val+'%</span>';
+    row.setAttribute('tabindex','0');
+    row.onclick = function(){ openMetricModal(modalTitle, '%', function(m){ return m[key][sub]; }, {isRate:true}); };
+    row.onkeydown = function(e){ if(e.key==='Enter' || e.key===' '){ e.preventDefault(); row.onclick(); } };
+    return row;
   }
 
   // ---------------- game breakdown ----------------
@@ -1642,8 +1734,422 @@
         else { var v = p[c.key]; td.textContent = c.fmt ? c.fmt(v) : v; }
         tr.appendChild(td);
       });
+      tr.setAttribute('tabindex','0');
+      tr.title = 'Open #' + p.jersey + '’s full profile';
+      tr.onclick = function(){ openPlayerModal(p.jersey); };
+      tr.onkeydown = function(e){ if(e.key==='Enter' || e.key===' '){ e.preventDefault(); openPlayerModal(p.jersey); } };
       tbody.appendChild(tr);
     });
+  }
+
+  // ---------------- modal shell ----------------
+  function closeModal(){
+    document.getElementById('modalRoot').innerHTML = '';
+    document.removeEventListener('keydown', modalKeyHandler);
+  }
+  function modalKeyHandler(e){ if(e.key === 'Escape') closeModal(); }
+  function openModalShell(contentEl){
+    var root = document.getElementById('modalRoot');
+    root.innerHTML = '';
+    var overlay = el('div','modal-overlay');
+    overlay.onclick = function(e){ if(e.target === overlay) closeModal(); };
+    var panel = el('div','modal-panel');
+    panel.setAttribute('role','dialog');
+    panel.setAttribute('aria-modal','true');
+    panel.appendChild(contentEl);
+    overlay.appendChild(panel);
+    root.appendChild(overlay);
+    document.addEventListener('keydown', modalKeyHandler);
+    var closeBtn = panel.querySelector('.modal-close');
+    if(closeBtn) closeBtn.focus();
+  }
+  function statGrid(rows){
+    var g = el('div','stat-grid');
+    rows.forEach(function(r){
+      var tile = el('div','stat-tile');
+      tile.innerHTML = '<div class="k">'+r[0]+'</div><div class="v">'+r[1]+'</div>';
+      g.appendChild(tile);
+    });
+    return g;
+  }
+  function scopeChips(allMatches, sel, onChange){
+    var wrap = el('div','modal-scope');
+    var allChip = el('div','chip'+(sel.size===allMatches.length?' active':''),'All games');
+    allChip.onclick = function(){ sel.clear(); allMatches.forEach(function(m){ sel.add(m.id); }); onChange(); };
+    wrap.appendChild(allChip);
+    allMatches.forEach(function(m){
+      var active = sel.has(m.id);
+      var chip = el('div','chip'+(active?' active':''));
+      var dot = el('span','result-dot');
+      dot.style.background = active ? '#fff' : (m.result==='W'?'#2fae4e':m.result==='D'?'#c9a227':'#d1483a');
+      chip.appendChild(dot);
+      chip.appendChild(document.createTextNode('vs ' + m.opponent.split(' ')[0] + ' · ' + fmtDate(m.date)));
+      chip.onclick = function(){
+        if(sel.has(m.id)){ if(sel.size>1) sel.delete(m.id); } else { sel.add(m.id); }
+        onChange();
+      };
+      wrap.appendChild(chip);
+    });
+    return wrap;
+  }
+
+  // ---------------- player profile modal ----------------
+  function playerStatRows(p){
+    return [
+      ['Minutes', p.minutes], ['Goals', p.goals], ['Assists', p.assists], ['Shots', p.shots],
+      ['Total attempts', p.totalAttempts], ['Conversion', pctFmt(p.conversionRate)],
+      ['Goal involvements', p.goalInvolvements], ['Dribbles', p.dribbles],
+      ['Passes (succ/tot)', p.passesSuccessful+'/'+p.passes], ['Pass accuracy', pctFmt(p.passSuccessRate)],
+      ['Tackles', p.tackles], ['Interceptions', p.interceptions], ['Loose ball rec.', p.looseBallRecoveries],
+      ['HI runs', p.highIntensityRuns], ['Sprints', p.sprints],
+      ['Distance', oneDec(p.distanceMi)+' mi'], ['Avg speed', oneDec(p.avgSpeedMph)+' mph'], ['Top speed', oneDec(p.topSpeedMph)+' mph'],
+      ['Fouls', p.fouls], ['Throw-ins', p.throwIns], ['Free kicks', p.freeKicks],
+      ['Corners', p.cornersEvents], ['Total events', p.totalEvents]
+    ];
+  }
+  function playerPerMatchTable(matches, jersey){
+    var wrap = el('div','table-wrap');
+    var table = document.createElement('table');
+    table.className = 'modal-table';
+    var rowsHtml = matches.map(function(m){
+      var p = m.players.find(function(x){ return String(x.jersey) === String(jersey); });
+      if(!p) return '<tr><td>vs '+m.opponent.split(' ')[0]+' ('+fmtDate(m.date)+')</td><td colspan="9" style="text-align:center;color:var(--text-mute);">Did not play</td></tr>';
+      return '<tr><td>vs '+m.opponent.split(' ')[0]+' ('+fmtDate(m.date)+')</td><td>'+p.minutes+'</td><td>'+p.goals+'</td><td>'+p.assists+'</td><td>'+p.shots+'</td>'+
+             '<td>'+p.passesSuccessful+'/'+p.passes+'</td><td>'+p.tackles+'</td><td>'+p.interceptions+'</td><td>'+oneDec(p.distanceMi)+'</td><td>'+oneDec(p.topSpeedMph)+'</td></tr>';
+    }).join('');
+    table.innerHTML = '<thead><tr><th>Game</th><th>Min</th><th>G</th><th>A</th><th>Sh</th><th>Passes</th><th>Tkl</th><th>Int</th><th>Dist (mi)</th><th>Top (mph)</th></tr></thead><tbody>'+rowsHtml+'</tbody>';
+    wrap.appendChild(table);
+    return wrap;
+  }
+  function openPlayerModal(jersey){
+    var matchesWithPlayer = state.season.matches.filter(function(m){
+      return m.players.some(function(p){ return String(p.jersey) === String(jersey); });
+    });
+    var defaultIds = matchesWithPlayer.filter(function(m){ return state.selected.has(m.id); }).map(function(m){ return m.id; });
+    if(defaultIds.length === 0) defaultIds = matchesWithPlayer.map(function(m){ return m.id; });
+    var sel = new Set(defaultIds);
+
+    function draw(){
+      var scoped = matchesWithPlayer.filter(function(m){ return sel.has(m.id); });
+      var merged = mergePlayers(scoped);
+      var p = merged.find(function(x){ return String(x.jersey) === String(jersey); });
+
+      var container = el('div');
+      var head = el('div','modal-head');
+      head.innerHTML = '<div class="modal-avatar">#'+jersey+'</div>'+
+        '<div class="modal-titles"><h3>Player #'+jersey+'</h3><div class="sub">'+scoped.length+' of '+matchesWithPlayer.length+' game'+(matchesWithPlayer.length===1?'':'s')+' selected'+(p ? ' · ' + p.minutes + ' min tracked' : '')+'</div></div>';
+      var closeBtn = el('button','modal-close','&times;'); closeBtn.type='button'; closeBtn.setAttribute('aria-label','Close'); closeBtn.onclick = closeModal;
+      head.appendChild(closeBtn);
+      container.appendChild(head);
+
+      var body = el('div','modal-body');
+      body.appendChild(scopeChips(matchesWithPlayer, sel, draw));
+
+      if(!p){
+        body.appendChild(el('div','empty','No stats for this player in the selected game(s).'));
+      } else {
+        body.appendChild(statGrid(playerStatRows(p)));
+        if(scoped.length > 1){
+          body.appendChild(el('div','modal-section-title','Per-game breakdown'));
+          body.appendChild(playerPerMatchTable(scoped, jersey));
+        }
+        var actions = el('div','modal-actions');
+        var expBtn = el('button','export-btn','⤓ Export this player');
+        expBtn.type = 'button';
+        expBtn.onclick = function(){
+          var cols = ['Game','Min','G','A','Sh','Total attempts','Conv%','Passes succ','Passes tot','Pass%','Tkl','Int','Loose ball rec','HI runs','Sprints','Dist (mi)','Avg (mph)','Top (mph)','Fouls','Throw-ins','Free kicks','Corners','Total events'];
+          var rows = scoped.map(function(m){
+            var mp = m.players.find(function(x){ return String(x.jersey) === String(jersey); });
+            if(!mp) return ['vs '+m.opponent+' ('+fmtDate(m.date)+')','DNP'];
+            return ['vs '+m.opponent+' ('+fmtDate(m.date)+')', mp.minutes, mp.goals, mp.assists, mp.shots, mp.totalAttempts, Math.round(mp.conversionRate)+'%',
+              mp.passesSuccessful, mp.passes, Math.round(mp.passSuccessRate)+'%', mp.tackles, mp.interceptions, mp.looseBallRecoveries,
+              mp.highIntensityRuns, mp.sprints, oneDec(mp.distanceMi), oneDec(mp.avgSpeedMph), oneDec(mp.topSpeedMph), mp.fouls, mp.throwIns, mp.freeKicks, mp.cornersEvents, mp.totalEvents];
+          });
+          rows.push(['COMBINED ('+scoped.length+' game'+(scoped.length===1?'':'s')+')', p.minutes, p.goals, p.assists, p.shots, p.totalAttempts, Math.round(p.conversionRate)+'%',
+            p.passesSuccessful, p.passes, Math.round(p.passSuccessRate)+'%', p.tackles, p.interceptions, p.looseBallRecoveries,
+            p.highIntensityRuns, p.sprints, oneDec(p.distanceMi), oneDec(p.avgSpeedMph), oneDec(p.topSpeedMph), p.fouls, p.throwIns, p.freeKicks, p.cornersEvents, p.totalEvents]);
+          addToExportQueue({
+            title: 'Player #' + jersey,
+            scope: scoped.length + ' of ' + matchesWithPlayer.length + ' game(s) selected',
+            columns: cols, rows: rows
+          });
+        };
+        actions.appendChild(expBtn);
+        body.appendChild(actions);
+      }
+      container.appendChild(body);
+      openModalShell(container);
+    }
+    draw();
+  }
+
+  // ---------------- generic metric modal ----------------
+  function openMetricModal(title, unit, valueFn, opts){
+    opts = opts || {};
+    var allMatches = state.season.matches.slice().sort(function(a,b){ return new Date(a.date) - new Date(b.date); });
+    var defaultIds = allMatches.filter(function(m){ return state.selected.has(m.id); }).map(function(m){ return m.id; });
+    if(defaultIds.length === 0) defaultIds = allMatches.map(function(m){ return m.id; });
+    var sel = new Set(defaultIds);
+
+    function draw(){
+      var scoped = allMatches.filter(function(m){ return sel.has(m.id); });
+      var vals = scoped.map(valueFn);
+      var total = vals.reduce(function(a,b){ return a+b; }, 0);
+      var average = vals.length ? total/vals.length : 0;
+
+      var container = el('div');
+      var head = el('div','modal-head');
+      head.innerHTML = '<div class="modal-avatar" style="border-radius:12px;">#</div>'+
+        '<div class="modal-titles"><h3>'+title+'</h3><div class="sub">'+scoped.length+' of '+allMatches.length+' game'+(allMatches.length===1?'':'s')+' selected</div></div>';
+      var closeBtn = el('button','modal-close','&times;'); closeBtn.type='button'; closeBtn.setAttribute('aria-label','Close'); closeBtn.onclick = closeModal;
+      head.appendChild(closeBtn);
+      container.appendChild(head);
+
+      var body = el('div','modal-body');
+      body.appendChild(scopeChips(allMatches, sel, draw));
+
+      var summaryRows = [['Average per game', average.toFixed(1) + unit]];
+      if(!opts.isRate) summaryRows.push(['Total', total + unit]);
+      body.appendChild(statGrid(summaryRows));
+
+      body.appendChild(el('div','modal-section-title','By game'));
+      var wrap = el('div','table-wrap');
+      var table = document.createElement('table');
+      table.className = 'modal-table';
+      var rowsHtml = scoped.map(function(m, i){
+        return '<tr><td>vs '+m.opponent.split(' ')[0]+'</td><td>'+fmtDate(m.date)+'</td><td>'+m.result+' '+m.scoreFor+'–'+m.scoreAgainst+'</td><td>'+vals[i]+unit+'</td></tr>';
+      }).join('');
+      table.innerHTML = '<thead><tr><th>Opponent</th><th>Date</th><th>Result</th><th>'+title+'</th></tr></thead><tbody>'+rowsHtml+'</tbody>';
+      wrap.appendChild(table);
+      body.appendChild(wrap);
+
+      var actions = el('div','modal-actions');
+      var expBtn = el('button','export-btn','⤓ Export this metric');
+      expBtn.type = 'button';
+      expBtn.onclick = function(){
+        var cols = ['Opponent','Date','Result', title];
+        var rows = scoped.map(function(m, i){ return ['vs '+m.opponent, fmtDate(m.date), m.result+' '+m.scoreFor+'-'+m.scoreAgainst, vals[i]+unit]; });
+        rows.push(['AVERAGE', '', '', average.toFixed(1)+unit]);
+        if(!opts.isRate) rows.push(['TOTAL', '', '', total+unit]);
+        addToExportQueue({ title: title, scope: scoped.length + ' of ' + allMatches.length + ' game(s) selected', columns: cols, rows: rows });
+      };
+      actions.appendChild(expBtn);
+      body.appendChild(actions);
+
+      container.appendChild(body);
+      openModalShell(container);
+    }
+    draw();
+  }
+
+  // ---------------- export queue / master export ----------------
+  function csvEscape(v){
+    v = (v === undefined || v === null) ? '' : String(v);
+    if(/[",\n]/.test(v)) v = '"' + v.replace(/"/g,'""') + '"';
+    return v;
+  }
+  function toCSV(columns, rows){
+    var lines = [columns.map(csvEscape).join(',')];
+    rows.forEach(function(r){ lines.push(r.map(csvEscape).join(',')); });
+    return lines.join('\n');
+  }
+  function downloadBlob(filename, content, mime){
+    var blob = new Blob([content], {type: mime});
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url; a.download = filename;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(function(){ URL.revokeObjectURL(url); }, 1500);
+  }
+  function toast(msg){
+    var root = document.getElementById('toastRoot');
+    root.innerHTML = '';
+    var t = el('div','toast', msg);
+    root.appendChild(t);
+    requestAnimationFrame(function(){ t.classList.add('show'); });
+    setTimeout(function(){ t.classList.remove('show'); }, 2200);
+  }
+  function addToExportQueue(item){
+    item.id = 'exp_' + Date.now() + '_' + Math.random().toString(36).slice(2,7);
+    item.addedAt = new Date();
+    state.exportQueue.push(item);
+    updateExportFab();
+    toast('Added "' + item.title + '" to master export (' + state.exportQueue.length + ')');
+  }
+  function updateExportFab(){
+    var fab = document.getElementById('exportFab');
+    if(!fab) return;
+    fab.querySelector('.count').textContent = state.exportQueue.length;
+  }
+
+  function matchesForExportScope(){ return state.season ? selectedMatches() : []; }
+
+  function wireSectionExports(){
+    document.getElementById('expSnapshot').onclick = function(){
+      var matches = matchesForExportScope();
+      if(matches.length === 0){ toast('Select at least one game first.'); return; }
+      var gf = sum(matches,'scoreFor'), ga = sum(matches,'scoreAgainst');
+      var sf = sum(matches,'shotsFor'), sa = sum(matches,'shotsAgainst');
+      var af = sum(matches,'attemptsFor'), aa = sum(matches,'attemptsAgainst');
+      var poss = avg(matches,'possession'); var n = matches.length;
+      var convF = af>0 ? Math.round(gf/af*100) : 0, convA = aa>0 ? Math.round(ga/aa*100) : 0;
+      var cols = ['Metric','Value','Detail'];
+      var rows = [
+        ['Possession', poss.toFixed(0)+'%', 'average'],
+        ['Goals scored', (gf/n).toFixed(1)+'/match', gf+' total'],
+        ['Goals conceded', (ga/n).toFixed(1)+'/match', ga+' total'],
+        ['Shot conversion', convF+'%', 'vs. '+convA+'% conceded'],
+        ['Attempts for', (af/n).toFixed(1)+'/match', ''],
+        ['Attempts against', (aa/n).toFixed(1)+'/match', '']
+      ];
+      addToExportQueue({ title:'Season snapshot', scope: n+' game(s) selected', columns: cols, rows: rows });
+    };
+
+    document.getElementById('expMatches').onclick = function(){
+      var matches = matchesForExportScope();
+      if(matches.length === 0){ toast('Select at least one game first.'); return; }
+      var cols = ['Opponent','Date','Home/Away','Result','Score','Possession%','Shots for','Shots against','Attempts for','Attempts against','Conv for%','Conv against%','Pass def%','Pass mid%','Pass att%','Poss def%','Poss mid%','Poss att%','Read'];
+      var rows = matches.map(function(m){
+        return [m.opponent, fmtDate(m.date), m.homeAway, m.result, m.scoreFor+'-'+m.scoreAgainst, m.possession,
+          m.shotsFor, m.shotsAgainst, m.attemptsFor, m.attemptsAgainst, m.convFor, m.convAgainst,
+          m.passThirds.def, m.passThirds.mid, m.passThirds.att, m.possThirds.def, m.possThirds.mid, m.possThirds.att, m.read];
+      });
+      addToExportQueue({ title:'Match-by-match', scope: matches.length+' game(s) selected', columns: cols, rows: rows });
+    };
+
+    document.getElementById('expGB').onclick = function(){
+      var matches = matchesForExportScope();
+      if(matches.length === 0){ toast('Select at least one game first.'); return; }
+      var cols = ['Match','Date','Side','Minute','Jersey','Goal?','Score','Note'];
+      var rows = [];
+      matches.forEach(function(m){
+        var label = 'vs ' + m.opponent;
+        m.moments.own.forEach(function(it){ rows.push([label, fmtDate(m.date), 'Own', it.minute, it.jersey, it.isGoal?'Yes':'No', it.score||'', it.note]); });
+        m.moments.opp.forEach(function(it){ rows.push([label, fmtDate(m.date), 'Opponent', it.minute, it.jersey, it.isGoal?'Yes':'No', it.score||'', it.note]); });
+      });
+      addToExportQueue({ title:'Game breakdown — key moments', scope: matches.length+' game(s) selected', columns: cols, rows: rows });
+    };
+
+    document.getElementById('expZones').onclick = function(){
+      var matches = matchesForExportScope();
+      if(matches.length === 0){ toast('Select at least one game first.'); return; }
+      var cols = ['Zone type','Third','Value%'];
+      function av(key,third){ return Math.round(avg(matches.map(function(m){ return {v:m[key][third]}; }),'v')); }
+      var rows = [
+        ['Pass location','Defensive', av('passThirds','def')], ['Pass location','Middle', av('passThirds','mid')], ['Pass location','Attacking', av('passThirds','att')],
+        ['Possession location','Defensive', av('possThirds','def')], ['Possession location','Middle', av('possThirds','mid')], ['Possession location','Attacking', av('possThirds','att')]
+      ];
+      addToExportQueue({ title:'Field zones', scope: matches.length+' game(s) selected', columns: cols, rows: rows });
+    };
+
+    document.getElementById('expRoster').onclick = function(){
+      var matches = matchesForExportScope();
+      if(matches.length === 0){ toast('Select at least one game first.'); return; }
+      var players = mergePlayers(matches);
+      var q = (document.getElementById('playerSearch').value || '').trim();
+      if(q) players = players.filter(function(p){ return String(p.jersey).indexOf(q) !== -1; });
+      var sortCol = PLAYER_COLS.find(function(c){ return c.key === state.sortKey || c.sortKey === state.sortKey; });
+      var sk = sortCol ? (sortCol.sortKey || sortCol.key) : 'goals';
+      players.sort(function(a,b){
+        var av2=a[sk], bv2=b[sk];
+        if(typeof av2 === 'string'){ av2=parseFloat(av2)||0; bv2=parseFloat(bv2)||0; }
+        return state.sortDir==='asc' ? (av2-bv2) : (bv2-av2);
+      });
+      var cols = PLAYER_COLS.map(function(c){ return c.label; });
+      var rows = players.map(function(p){
+        return PLAYER_COLS.map(function(c){
+          if(c.key === 'jersey') return '#'+p.jersey;
+          if(c.key === 'passesDisplay') return p.passesDisplay;
+          var v = p[c.key];
+          return c.fmt ? c.fmt(v) : v;
+        });
+      });
+      addToExportQueue({ title:'Full roster — player stats', scope: matches.length+' game(s) selected'+(q?', filtered "'+q+'"':''), columns: cols, rows: rows });
+    };
+  }
+
+  function openMasterExportModal(){
+    function draw(){
+      var container = el('div');
+      var head = el('div','modal-head');
+      head.innerHTML = '<div class="modal-avatar" style="border-radius:12px;">🧺</div>'+
+        '<div class="modal-titles"><h3>Master export</h3><div class="sub">'+state.exportQueue.length+' item'+(state.exportQueue.length===1?'':'s')+' queued</div></div>';
+      var closeBtn = el('button','modal-close','&times;'); closeBtn.type='button'; closeBtn.setAttribute('aria-label','Close'); closeBtn.onclick = closeModal;
+      head.appendChild(closeBtn);
+      container.appendChild(head);
+
+      var body = el('div','modal-body');
+      if(state.exportQueue.length === 0){
+        body.appendChild(el('div','empty','Nothing queued yet. Click "⤓ Export" on any section, player, or stat to add it here, then come back to download or print the reviewed set.'));
+      } else {
+        body.appendChild(el('p','slede','Review what’s queued below (uncheck anything you don’t want), then download it as one CSV or send it to print/PDF.'));
+        state.exportQueue.forEach(function(item){
+          if(item._included === undefined) item._included = true;
+          var row = el('div','exp-row');
+          var cb = document.createElement('input'); cb.type='checkbox'; cb.checked = item._included;
+          cb.onchange = function(){ item._included = cb.checked; };
+          row.appendChild(cb);
+          var info = el('div','exp-info');
+          info.innerHTML = '<div class="exp-title">'+item.title+'</div><div class="exp-scope">'+item.scope+' · '+item.rows.length+' row'+(item.rows.length===1?'':'s')+'</div>';
+          row.appendChild(info);
+          var rm = el('button','exp-remove','Remove');
+          rm.type = 'button';
+          rm.onclick = function(){
+            state.exportQueue = state.exportQueue.filter(function(x){ return x.id !== item.id; });
+            updateExportFab();
+            draw();
+          };
+          row.appendChild(rm);
+          body.appendChild(row);
+        });
+
+        var actions = el('div','modal-actions');
+        var dlBtn = el('button','export-btn','⤓ Download combined CSV');
+        dlBtn.type = 'button';
+        dlBtn.onclick = downloadMasterCSV;
+        var printBtn = el('button','export-btn','🖨 Final print / PDF');
+        printBtn.type = 'button';
+        printBtn.onclick = printMasterExport;
+        var clearBtn = el('button','export-btn','Clear all');
+        clearBtn.type = 'button';
+        clearBtn.onclick = function(){ state.exportQueue = []; updateExportFab(); draw(); };
+        actions.appendChild(dlBtn); actions.appendChild(printBtn); actions.appendChild(clearBtn);
+        body.appendChild(actions);
+      }
+      container.appendChild(body);
+      openModalShell(container);
+    }
+    draw();
+  }
+
+  function includedExports(){ return state.exportQueue.filter(function(x){ return x._included !== false; }); }
+
+  function downloadMasterCSV(){
+    var items = includedExports();
+    if(items.length === 0){ toast('Nothing checked to export.'); return; }
+    var parts = items.map(function(item){
+      return '## ' + item.title + ' (' + item.scope + ')\n' + toCSV(item.columns, item.rows);
+    });
+    var content = parts.join('\n\n');
+    var stamp = new Date().toISOString().slice(0,10);
+    downloadBlob('highland-swarm-export-' + stamp + '.csv', content, 'text/csv;charset=utf-8;');
+    toast('Downloaded ' + items.length + '-section CSV.');
+  }
+
+  function printMasterExport(){
+    var items = includedExports();
+    if(items.length === 0){ toast('Nothing checked to print.'); return; }
+    var printRoot = document.getElementById('printRoot');
+    var html = '<h1>'+state.season.team.name+' — Match Analytics</h1>'+
+      '<div style="color:#555;font-size:.85rem;margin-bottom:18px;">Generated '+new Date().toLocaleString()+'</div>';
+    items.forEach(function(item){
+      var thead = '<tr>' + item.columns.map(function(c){ return '<th>'+c+'</th>'; }).join('') + '</tr>';
+      var tbody = item.rows.map(function(r){ return '<tr>' + r.map(function(v){ return '<td>'+(v===undefined||v===null?'':v)+'</td>'; }).join('') + '</tr>'; }).join('');
+      html += '<div class="print-sec"><h3>'+item.title+'</h3><div style="font-size:.78rem;color:#666;margin-bottom:6px;">'+item.scope+'</div><table>'+thead+tbody+'</table></div>';
+    });
+    printRoot.innerHTML = html;
+    closeModal();
+    setTimeout(function(){ window.print(); }, 60);
   }
 
   // ---------------- wire up ----------------
@@ -1658,6 +2164,8 @@
   }
 
   document.getElementById('playerSearch').addEventListener('input', function(){ renderPlayerTable(selectedMatches()); });
+  document.getElementById('exportFab').onclick = openMasterExportModal;
+  wireSectionExports();
 
   function initSeason(season, isFallback){
     state.season = season;
@@ -1669,6 +2177,7 @@
       var banner = document.getElementById('fallbackBanner');
       if (banner) banner.style.display = 'block';
     }
+    updateExportFab();
     renderAll();
   }
 
