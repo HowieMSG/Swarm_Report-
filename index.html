@@ -474,8 +474,7 @@
 <div id="infoPopoverRoot"></div>
 <div class="print-only" id="printRoot"></div>
 
-<script id="embedded-season-data" type="application/json">
-{
+<script id="embedded-season-data" type="application/json">{
   "team": {
     "name": "Highland Elite Swarm 12/13",
     "club": "Highland YSC",
@@ -1024,7 +1023,9 @@
           "looseBallRecoveries": 0,
           "totalEvents": 4
         }
-      ]
+      ],
+      "possessionWonFor": 123,
+      "possessionWonAgainst": 124
     },
     {
       "id": "2026-08-09-pennfusion",
@@ -1593,11 +1594,12 @@
           "looseBallRecoveries": 0,
           "totalEvents": 1
         }
-      ]
+      ],
+      "possessionWonFor": 94,
+      "possessionWonAgainst": 96
     }
   ]
-}
-</script>
+}</script>
 <script>
 (function(){
   var state = { season: null, selected: new Set(), sortKey: 'goals', sortDir: 'desc', exportQueue: [], per90: false, view: 'coach' };
@@ -2020,6 +2022,9 @@
     var hiPerMatch = ((p.highIntensityRuns||0) + (p.sprints||0)) / n;
     var takeOnsPerMatch = (p.dribbles||0) / n;
     var discRate = defW > 0 ? round1((p.fouls||0)/defW) : (p.fouls||0);
+    var turnoversPerMatch = (p.passesUnsuccessful||0) / n;
+    var teamPassesScoped = scoped.reduce(function(a,m){ return a + teamTotalPasses(m); }, 0);
+    var possessionRate = teamPassesScoped > 0 ? round1((p.passes||0) / teamPassesScoped * 100) : 0;
 
     return [
       {lbl:'Defensive workload', val:defW, unit:'', fmt:function(v){ return Math.round(v); },
@@ -2035,7 +2040,11 @@
       {lbl:'High-intensity workload', val:hiPerMatch, unit:'', fmt:oneDec,
         def:'This player’s high-intensity runs plus sprints, averaged per match across the games selected above. Compared against the team’s average for the same games.', cmp:teamAvgOf(teamHIWorkload)},
       {lbl:'Take-ons / match', val:takeOnsPerMatch, unit:'', fmt:oneDec,
-        def:'This player’s dribbles (take-on attempts), averaged per match across the games selected above. Compared against the team’s average for the same games.', cmp:teamAvgOf(teamTakeOns)}
+        def:'This player’s dribbles (take-on attempts), averaged per match across the games selected above. Compared against the team’s average for the same games.', cmp:teamAvgOf(teamTakeOns)},
+      {lbl:'Turnovers / match', val:turnoversPerMatch, unit:'', fmt:oneDec,
+        def:ADV_DEFS.playerTurnovers, cmp:teamAvgOf(teamUnsuccessfulPassesAvg)},
+      {lbl:'Possession rate', val:possessionRate, unit:'%', fmt:oneDec,
+        def:ADV_DEFS.playerPossessionRate, cmp:null}
     ];
   }
   function playerAdvancedGrid(jersey, scoped, p){
@@ -2487,6 +2496,21 @@
   function teamTakeOns(m){
     return round1(m.players.length ? avg(m.players.map(function(p){ return {v:p.dribbles||0}; }),'v') : 0);
   }
+  // Turnovers / recoveries — the one advanced metric here that isn't derived from the raw stats
+  // above. Veo's own per-match Analytics panel tags a "Possession won" event for each team,
+  // defined by Veo itself as "the number of times a team regained possession of the ball in open
+  // play." possessionWonFor/possessionWonAgainst are pulled from that panel per match (there's no
+  // season-aggregate view of it in Veo, so it's captured match by match like the Game Breakdown
+  // data). Team recoveries is that stat directly; team turnovers is the same stat read from the
+  // opponent's side — every time they win the ball back in open play is a time we lost it.
+  function teamRecoveries(m){ return m.possessionWonFor||0; }
+  function teamTurnovers(m){ return m.possessionWonAgainst||0; }
+  // Helpers backing the player-card proxies (see ADV_DEFS.playerTurnovers / playerPossessionRate
+  // for why these are proxies, not real Veo per-player stats).
+  function teamTotalPasses(m){ return sum(m.players.map(function(p){ return {v:p.passes||0}; }),'v'); }
+  function teamUnsuccessfulPassesAvg(m){
+    return round1(m.players.length ? avg(m.players.map(function(p){ return {v:p.passesUnsuccessful||0}; }),'v') : 0);
+  }
 
   // Shared definition text for every advanced metric — used both by the team strip's info
   // buttons and the matching tiles in each player's profile modal, so the wording never drifts
@@ -2501,7 +2525,11 @@
     passAccuracy: 'Every completed pass on the roster divided by every pass attempted, as a percentage — the team’s overall ball-retention rate. Each player’s own pass accuracy is shown in their profile, compared against this team figure.',
     discipline: 'Fouls committed per defensive action (tackle, interception, or loose ball recovery). Lower means the team is defending clean — winning the ball without giving away needless fouls; higher flags a more foul-prone approach. Each player’s own rate is shown in their profile.',
     hiWorkload: 'High-intensity runs plus sprints, averaged per player for the match — a combined read on top-end physical output beyond raw distance. Each player’s own total is shown in their profile, compared against this team figure.',
-    takeOns: 'Dribbles (take-on attempts), averaged per player for the match. Each player’s own take-on count is shown in their profile, compared against this team figure.'
+    takeOns: 'Dribbles (take-on attempts), averaged per player for the match. Each player’s own take-on count is shown in their profile, compared against this team figure.',
+    teamRecoveries: 'Veo’s own “Possession won” stat for this team — the number of times the team regained the ball in open play that match, as tagged directly by Veo’s AI (this is a real Veo metric, not something computed from other stats). Higher means winning the ball back more often. There’s no individual player breakdown of this in Veo, so it’s team-level only.',
+    teamTurnovers: 'The same Veo “Possession won” stat, read from the opponent’s side — the number of times the opponent regained the ball in open play that match. Since every time they win it back is a time this team lost it, this is the closest real, Veo-tagged number to a team turnover count. Lower is better. Team-level only — Veo doesn’t attribute “possession won” to individual players, so the player-card version below (Turnovers) uses a different, narrower proxy — see that tile’s own info for the difference.',
+    playerTurnovers: 'Unsuccessful passes — every pass Veo tagged as not reaching a teammate. This is a proxy, not a full turnover count: Veo doesn’t tag dispossessions on a dribble or a bad touch as a distinct event for a player, only pass outcomes, so this under-counts real giveaways. It’s still the closest thing Veo tracks per player to “times this player lost the ball.” Team avg is the same figure averaged across the roster for the selected games.',
+    playerPossessionRate: 'This player’s passes attempted as a share of the whole team’s passes attempted that match — a proxy for how much of the team’s ball-moving went through this player. Veo doesn’t track individual time-in-possession or touches, so this uses passes (the closest per-player figure Veo does track) as the stand-in. It is not the same as “time on the ball.”'
   };
 
   // ---------------- time-in-game split (first half vs. second half) ----------------
@@ -2745,7 +2773,9 @@
       {lbl:'Pass accuracy', valueFn:teamPassAccuracy, unit:'%', isRate:true, fmt:function(v){ return Math.round(v); }, sub:'completed passes, whole roster', def:ADV_DEFS.passAccuracy},
       {lbl:'Discipline rate', valueFn:teamDisciplineRate, unit:' fouls/def. action', isRate:true, fmt:oneDec, sub:'fouls per defensive action', def:ADV_DEFS.discipline},
       {lbl:'High-intensity workload', valueFn:teamHIWorkload, unit:'', isRate:true, fmt:oneDec, sub:'HI runs + sprints, per player, per match', def:ADV_DEFS.hiWorkload},
-      {lbl:'Take-ons', valueFn:teamTakeOns, unit:'', isRate:true, fmt:oneDec, sub:'dribbles, per player, per match', def:ADV_DEFS.takeOns}
+      {lbl:'Take-ons', valueFn:teamTakeOns, unit:'', isRate:true, fmt:oneDec, sub:'dribbles, per player, per match', def:ADV_DEFS.takeOns},
+      {lbl:'Team recoveries', valueFn:teamRecoveries, unit:'', isRate:false, fmt:function(v){ return Math.round(v); }, sub:'Veo "possession won", per match', def:ADV_DEFS.teamRecoveries},
+      {lbl:'Team turnovers', valueFn:teamTurnovers, unit:'', isRate:false, fmt:function(v){ return Math.round(v); }, sub:'opponent\'s Veo "possession won", per match', def:ADV_DEFS.teamTurnovers}
     ];
   }
   // Info popovers live in their own root (#infoPopoverRoot), separate from #modalRoot, so opening

@@ -547,7 +547,9 @@
           "looseBallRecoveries": 0,
           "totalEvents": 4
         }
-      ]
+      ],
+      "possessionWonFor": 123,
+      "possessionWonAgainst": 124
     },
     {
       "id": "2026-08-09-pennfusion",
@@ -1116,7 +1118,9 @@
           "looseBallRecoveries": 0,
           "totalEvents": 1
         }
-      ]
+      ],
+      "possessionWonFor": 94,
+      "possessionWonAgainst": 96
     }
   ]
 }
