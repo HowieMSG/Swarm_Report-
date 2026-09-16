@@ -49,6 +49,12 @@
 
   main{max-width:1180px; margin:0 auto; padding:22px 20px 10px;}
 
+  /* section nav */
+  .sec-nav{position:sticky; top:0; z-index:50; background:var(--bg); border-bottom:1px solid var(--line); display:flex; gap:6px; overflow-x:auto; padding:10px 0; margin:0 0 16px; -webkit-overflow-scrolling:touch;}
+  .sec-nav a{flex:none; font-size:.76rem; font-weight:700; color:var(--text-dim); text-decoration:none; background:var(--card); border:1px solid var(--line); border-radius:999px; padding:6px 13px; white-space:nowrap;}
+  .sec-nav a:hover{color:var(--accent-strong); border-color:var(--accent);}
+  section[id]{scroll-margin-top:52px;}
+
   /* filter bar */
   .filter-bar{
     background:var(--card); border:1px solid var(--line); border-radius:var(--radius);
@@ -218,11 +224,46 @@
   .gb-txt b{color:var(--text);}
   .gb-cue{font-size:.72rem; color:var(--text-mute); padding:0 16px 14px; font-style:italic;}
 
+  /* trends */
+  .trend-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:12px;}
+  @media (max-width:820px){ .trend-grid{grid-template-columns:repeat(2,1fr);} }
+  @media (max-width:520px){ .trend-grid{grid-template-columns:1fr;} }
+  .trend-card{background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:12px 14px 8px; cursor:pointer;}
+  .trend-card:hover{border-color:var(--accent);}
+  .trend-card .th{display:flex; align-items:baseline; justify-content:space-between; gap:6px; margin-bottom:2px;}
+  .trend-card .tt{font-size:.76rem; font-weight:700; color:var(--text);}
+  .trend-card .td{font-size:.72rem; font-weight:800; display:flex; align-items:center; gap:3px;}
+  .trend-card .td.up{color:var(--good-text);} .trend-card .td.down{color:var(--bad-text);} .trend-card .td.flat{color:var(--text-mute);}
+  .trend-card svg{display:block; width:100%; height:auto; margin-top:4px;}
+  .trend-card .tnote{font-size:.66rem; color:var(--text-mute); margin-top:2px;}
+
+  /* weekly prep */
+  .prep-grid{display:flex; gap:14px; flex-wrap:wrap; margin-bottom:14px;}
+  .prep-col{flex:1; min-width:240px; background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:14px 16px;}
+  .prep-col h4{font-size:.82rem; margin:0 0 10px; display:flex; align-items:center; gap:6px;}
+  .prep-col.good h4{color:var(--good-text);} .prep-col.bad h4{color:var(--bad-text);} .prep-col.notes h4{color:var(--accent-strong);}
+  .prep-item{font-size:.82rem; line-height:1.45; padding:8px 0; border-bottom:1px dotted var(--line); color:var(--text-dim);}
+  .prep-item:last-child{border-bottom:none;}
+  .prep-item b{color:var(--text);}
+  .prep-form{display:flex; gap:6px; margin-bottom:14px; flex-wrap:wrap;}
+  .prep-form .fchip{width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:.72rem; font-weight:800; color:#fff;}
+  .prep-form .fchip.W{background:#2fae4e;} .prep-form .fchip.D{background:#c9a227;} .prep-form .fchip.L{background:#d1483a;}
+  .prep-spotlight{display:flex; gap:12px; flex-wrap:wrap;}
+  .prep-player{flex:1; min-width:220px; background:var(--bg); border:1px solid var(--line); border-radius:10px; padding:11px 13px; display:flex; gap:10px; align-items:flex-start;}
+  .prep-player .av{width:38px; height:38px; border-radius:50%; background:linear-gradient(135deg,var(--accent-strong),var(--accent)); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:.78rem; flex:none;}
+  .prep-player .pt{font-size:.68rem; text-transform:uppercase; letter-spacing:.4px; font-weight:700; margin-bottom:2px;}
+  .prep-player.up .pt{color:var(--good-text);} .prep-player.watch .pt{color:var(--bad-text);}
+  .prep-player .pd{font-size:.8rem; color:var(--text-dim); line-height:1.4;}
+
   /* players */
   .roster-toolbar{display:flex; align-items:center; gap:10px; margin-bottom:10px; flex-wrap:wrap;}
   .roster-toolbar input[type=search]{
     background:var(--card); border:1px solid var(--line); border-radius:8px; padding:7px 11px; font-size:.85rem; color:var(--text); flex:1; min-width:160px;
   }
+  .per90-toggle{display:flex; border:1px solid var(--line); border-radius:8px; overflow:hidden; flex:none;}
+  .per90-toggle .seg{background:var(--card); border:none; color:var(--text-dim); font-size:.76rem; font-weight:700; padding:7px 12px; cursor:pointer;}
+  .per90-toggle .seg.active{background:var(--accent); color:#fff;}
+  .per90-toggle .seg:not(.active):hover{background:var(--accent-soft);}
   .table-wrap{overflow-x:auto; border:1px solid var(--line); border-radius:var(--radius); background:var(--card);}
   table.stats{width:100%; border-collapse:collapse; font-size:.78rem; white-space:nowrap;}
   table.stats th{
@@ -264,40 +305,74 @@
   <div class="fallback-banner" id="fallbackBanner">
     Showing the data bundled inside this page — the live <code>data/season.json</code> file couldn't be loaded (check that it was uploaded at that exact path). Any recent hand-edits to that file won't show until this is fixed.
   </div>
+
+  <nav class="sec-nav" id="secNav">
+    <a href="#weeklyPrep">Weekly prep</a>
+    <a href="#snapshot">Snapshot</a>
+    <a href="#trends">Trends</a>
+    <a href="#advanced">Advanced</a>
+    <a href="#matches">Matches</a>
+    <a href="#gamebreakdown">Game breakdown</a>
+    <a href="#zones">Zones</a>
+    <a href="#roster">Roster</a>
+  </nav>
+
   <div class="filter-bar" id="filterBar">
     <span class="lbl">Games</span>
     <!-- chips injected by JS -->
   </div>
 
-  <section>
+  <section id="weeklyPrep">
+    <div class="sec-head"><h2 class="stitle">Weekly prep</h2><button class="export-btn" id="expPrep" type="button">⤓ Export</button></div>
+    <p class="slede" id="prepLede">Auto-built from the most recent logged match vs. the rest of the season — always up to date, independent of the game filter below.</p>
+    <div id="prepBody"></div>
+  </section>
+
+  <section id="snapshot">
     <div class="sec-head"><h2 class="stitle">Snapshot</h2><button class="export-btn" id="expSnapshot" type="button">⤓ Export</button></div>
     <p class="slede" id="snapshotLede"></p>
     <div class="kpi-strip" id="kpiStrip"></div>
   </section>
 
-  <section>
+  <section id="trends">
+    <div class="sec-head"><h2 class="stitle">Season trends</h2><button class="export-btn" id="expTrends" type="button">⤓ Export</button></div>
+    <p class="slede">Always the full season, regardless of the game filter — a trend needs every match to read. Click a chart to see it by game.</p>
+    <div class="trend-grid" id="trendGrid"></div>
+  </section>
+
+  <section id="advanced">
+    <div class="sec-head"><h2 class="stitle">Advanced metrics</h2><button class="export-btn" id="expAdvanced" type="button">⤓ Export</button></div>
+    <p class="slede">Composite numbers built from the raw stats above — not anything Veo computes directly. Click a tile to see it by game.</p>
+    <div class="kpi-strip" id="advancedStrip"></div>
+  </section>
+
+  <section id="matches">
     <div class="sec-head"><h2 class="stitle">Match-by-match</h2><button class="export-btn" id="expMatches" type="button">⤓ Export</button></div>
     <p class="slede">Full Analytics 2 figures for each selected match. Click any stat to see it trend across games.</p>
     <div id="matchCards"></div>
   </section>
 
-  <section>
+  <section id="gamebreakdown">
     <div class="sec-head"><h2 class="stitle">Game breakdown — key moments</h2><button class="export-btn" id="expGB" type="button">⤓ Export</button></div>
     <p class="slede">Every shot and goal Veo's AI tagged. For each selected game: our two best attacking moments, and the opponent's two best scoring chances — cue the film to the minute shown.</p>
     <div id="gbCards"></div>
   </section>
 
-  <section>
+  <section id="zones">
     <div class="sec-head"><h2 class="stitle">Field zones</h2><button class="export-btn" id="expZones" type="button">⤓ Export</button></div>
     <p class="slede">Where the team's passes and time-on-ball happen, by pitch third (own team, averaged across the selected games). Click a bar to see it by game.</p>
     <div class="zone-cols" id="zoneCols"></div>
   </section>
 
-  <section>
+  <section id="roster">
     <div class="sec-head"><h2 class="stitle">Full roster — player stats</h2><button class="export-btn" id="expRoster" type="button">⤓ Export</button></div>
     <p class="slede">Every player who logged minutes in the selected game(s). Click a row to open that player's full profile, or a column header to sort. Jerseys aren't yet linked to names in Veo.</p>
     <div class="roster-toolbar">
       <input type="search" id="playerSearch" placeholder="Filter by jersey #…">
+      <div class="per90-toggle" id="per90Toggle">
+        <button type="button" class="seg active" data-mode="totals">Totals</button>
+        <button type="button" class="seg" data-mode="per90">Per 90</button>
+      </div>
     </div>
     <div class="table-wrap">
       <table class="stats" id="playerTable">
@@ -1443,7 +1518,7 @@
 </script>
 <script>
 (function(){
-  var state = { season: null, selected: new Set(), sortKey: 'goals', sortDir: 'desc', exportQueue: [] };
+  var state = { season: null, selected: new Set(), sortKey: 'goals', sortDir: 'desc', exportQueue: [], per90: false };
 
   function fmtDate(iso){
     var d = new Date(iso + 'T00:00:00');
@@ -1639,22 +1714,44 @@
   var PLAYER_COLS = [
     {key:'jersey', label:'Player', numeric:false},
     {key:'minutes', label:'Min'},
-    {key:'goals', label:'G'},
-    {key:'assists', label:'A'},
-    {key:'shots', label:'Sh'},
+    {key:'goals', label:'G', per90:true},
+    {key:'assists', label:'A', per90:true},
+    {key:'goalInvolvements', label:'GI', per90:true},
+    {key:'shots', label:'Sh', per90:true},
     {key:'conversionRate', label:'Conv%', fmt:pctFmt},
     {key:'passesDisplay', label:'Passes (S/T)', numeric:false, sortKey:'passesSuccessful'},
     {key:'passSuccessRate', label:'Pass%', fmt:pctFmt},
-    {key:'tackles', label:'Tkl'},
-    {key:'interceptions', label:'Int'},
-    {key:'highIntensityRuns', label:'HI Runs'},
-    {key:'sprints', label:'Sprints'},
-    {key:'distanceMi', label:'Dist (mi)', fmt:oneDec},
+    {key:'tackles', label:'Tkl', per90:true},
+    {key:'interceptions', label:'Int', per90:true},
+    {key:'defActions', label:'Def Act', per90:true, derive:function(p){ return (p.tackles||0)+(p.interceptions||0)+(p.looseBallRecoveries||0); }},
+    {key:'highIntensityRuns', label:'HI Runs', per90:true},
+    {key:'sprints', label:'Sprints', per90:true},
+    {key:'distanceMi', label:'Dist (mi)', fmt:oneDec, per90:true},
     {key:'avgSpeedMph', label:'Avg (mph)', fmt:oneDec},
     {key:'topSpeedMph', label:'Top (mph)', fmt:oneDec}
   ];
   function pctFmt(v){ return Math.round(v) + '%'; }
   function oneDec(v){ return (Math.round(v*10)/10).toFixed(1); }
+
+  function playerColRaw(p, col){
+    if(col.derive) return col.derive(p);
+    var sk = col.sortKey || col.key;
+    return p[sk];
+  }
+  function playerColValue(p, col){
+    var raw = playerColRaw(p, col);
+    if(typeof raw === 'string') raw = parseFloat(raw) || 0;
+    if(state.per90 && col.per90 && typeof raw === 'number'){ raw = p.minutes > 0 ? (raw / p.minutes * 90) : 0; }
+    return raw;
+  }
+  function playerCellText(p, col){
+    if(col.key === 'jersey') return '#' + p.jersey;
+    if(col.key === 'passesDisplay') return p.passesDisplay;
+    var v = playerColValue(p, col);
+    if(state.per90 && col.per90) return oneDec(v);
+    return col.fmt ? col.fmt(v) : v;
+  }
+  function playerColLabel(c){ return c.label + (state.per90 && c.per90 ? '/90' : ''); }
 
   function mergePlayers(matches){
     var byJersey = {};
@@ -1695,10 +1792,9 @@
     var q = (document.getElementById('playerSearch').value || '').trim();
     if(q) players = players.filter(function(p){ return String(p.jersey).indexOf(q) !== -1; });
 
-    var sortCol = PLAYER_COLS.find(function(c){ return c.key === state.sortKey || c.sortKey === state.sortKey; });
-    var sk = sortCol ? (sortCol.sortKey || sortCol.key) : 'goals';
+    var sortCol = PLAYER_COLS.find(function(c){ return c.key === state.sortKey || c.sortKey === state.sortKey; }) || PLAYER_COLS[2];
     players.sort(function(a,b){
-      var av = a[sk], bv = b[sk];
+      var av = playerColValue(a, sortCol), bv = playerColValue(b, sortCol);
       if(typeof av === 'string') { av = parseFloat(av)||0; bv = parseFloat(bv)||0; }
       return state.sortDir === 'asc' ? (av-bv) : (bv-av);
     });
@@ -1706,7 +1802,7 @@
     var thead = document.getElementById('playerTableHead');
     thead.innerHTML = '';
     PLAYER_COLS.forEach(function(c){
-      var th = el('th', null, c.label + (state.sortKey === (c.sortKey||c.key) ? (state.sortDir==='desc'?' ▾':' ▴') : ''));
+      var th = el('th', null, playerColLabel(c) + (state.sortKey === (c.sortKey||c.key) ? (state.sortDir==='desc'?' ▾':' ▴') : ''));
       th.onclick = function(){
         var k = c.sortKey || c.key;
         if(state.sortKey === k){ state.sortDir = state.sortDir === 'desc' ? 'asc' : 'desc'; }
@@ -1729,9 +1825,7 @@
       var tr = document.createElement('tr');
       PLAYER_COLS.forEach(function(c){
         var td = document.createElement('td');
-        if(c.key === 'jersey'){ td.textContent = '#' + p.jersey; }
-        else if(c.key === 'passesDisplay'){ td.textContent = p.passesDisplay; }
-        else { var v = p[c.key]; td.textContent = c.fmt ? c.fmt(v) : v; }
+        td.textContent = playerCellText(p, c);
         tr.appendChild(td);
       });
       tr.setAttribute('tabindex','0');
@@ -2048,24 +2142,65 @@
       var players = mergePlayers(matches);
       var q = (document.getElementById('playerSearch').value || '').trim();
       if(q) players = players.filter(function(p){ return String(p.jersey).indexOf(q) !== -1; });
-      var sortCol = PLAYER_COLS.find(function(c){ return c.key === state.sortKey || c.sortKey === state.sortKey; });
-      var sk = sortCol ? (sortCol.sortKey || sortCol.key) : 'goals';
+      var sortCol = PLAYER_COLS.find(function(c){ return c.key === state.sortKey || c.sortKey === state.sortKey; }) || PLAYER_COLS[2];
       players.sort(function(a,b){
-        var av2=a[sk], bv2=b[sk];
+        var av2 = playerColValue(a, sortCol), bv2 = playerColValue(b, sortCol);
         if(typeof av2 === 'string'){ av2=parseFloat(av2)||0; bv2=parseFloat(bv2)||0; }
         return state.sortDir==='asc' ? (av2-bv2) : (bv2-av2);
       });
-      var cols = PLAYER_COLS.map(function(c){ return c.label; });
+      var cols = PLAYER_COLS.map(playerColLabel);
       var rows = players.map(function(p){
-        return PLAYER_COLS.map(function(c){
-          if(c.key === 'jersey') return '#'+p.jersey;
-          if(c.key === 'passesDisplay') return p.passesDisplay;
-          var v = p[c.key];
-          return c.fmt ? c.fmt(v) : v;
-        });
+        return PLAYER_COLS.map(function(c){ return playerCellText(p, c); });
       });
-      addToExportQueue({ title:'Full roster — player stats', scope: matches.length+' game(s) selected'+(q?', filtered "'+q+'"':''), columns: cols, rows: rows });
+      addToExportQueue({ title:'Full roster — player stats' + (state.per90?' (per 90)':''), scope: matches.length+' game(s) selected'+(q?', filtered "'+q+'"':''), columns: cols, rows: rows });
     };
+
+    document.getElementById('expPrep').onclick = function(){
+      var all = seasonMatchesSorted();
+      if(all.length === 0){ toast('Log a match first.'); return; }
+      var latest = all[all.length-1];
+      var prior = all.slice(0, -1);
+      var cols = ['Category','Item','Detail'];
+      var rows = [];
+      rows.push(['Form', 'Last ' + Math.min(5, all.length) + ' results', all.slice(-5).map(function(m){ return m.result+' '+m.scoreFor+'-'+m.scoreAgainst+' vs '+m.opponent; }).join('; ')]);
+      if(prior.length > 0){
+        computeWeeklyDeltas(latest, prior).forEach(function(d){
+          rows.push([d.good ? 'Going well' : 'Needs work', d.metric.label, d.metric.fmt(d.latestVal) + ' last match vs ' + d.metric.fmt(d.priorAvg) + ' prior average']);
+        });
+      }
+      rows.push(['Coach notes', 'vs ' + latest.opponent + ' (' + fmtDate(latest.date) + ')', latest.read]);
+      addToExportQueue({ title:'Weekly prep', scope:'as of ' + fmtDate(latest.date) + ' vs ' + latest.opponent, columns:cols, rows:rows });
+    };
+
+    document.getElementById('expTrends').onclick = function(){
+      var all = seasonMatchesSorted();
+      if(all.length === 0){ toast('Log a match first.'); return; }
+      var cols = ['Opponent','Date','Possession%','Goals scored','Goals conceded','Shot conv for%','Shot quality diff (pts)','Team avg distance (mi)'];
+      var rows = all.map(function(m){
+        return [m.opponent, fmtDate(m.date), m.possession, m.scoreFor, m.scoreAgainst, convForPct(m), shotQualityDiff(m), teamAvgDistance(m)];
+      });
+      addToExportQueue({ title:'Season trends', scope: all.length + ' match(es), full season', columns: cols, rows: rows });
+    };
+
+    document.getElementById('expAdvanced').onclick = function(){
+      var matches = matchesForExportScope();
+      if(matches.length === 0){ toast('Select at least one game first.'); return; }
+      var cols = ['Metric','Average value','Detail'];
+      var rows = advancedTileDefs().map(function(t){
+        var vals = matches.map(t.valueFn);
+        var a = vals.reduce(function(x,y){ return x+y; },0) / vals.length;
+        return [t.lbl, t.fmt(a) + t.unit, t.sub];
+      });
+      addToExportQueue({ title:'Advanced metrics', scope: matches.length + ' game(s) selected', columns: cols, rows: rows });
+    };
+
+    document.getElementById('per90Toggle').addEventListener('click', function(e){
+      var btn = e.target.closest('.seg');
+      if(!btn) return;
+      state.per90 = btn.getAttribute('data-mode') === 'per90';
+      document.querySelectorAll('#per90Toggle .seg').forEach(function(b){ b.classList.toggle('active', b === btn); });
+      renderPlayerTable(selectedMatches());
+    });
   }
 
   function openMasterExportModal(){
@@ -2152,11 +2287,245 @@
     setTimeout(function(){ window.print(); }, 60);
   }
 
+  // ---------------- derived / advanced metrics ----------------
+  function round1(x){ return Math.round(x*10)/10; }
+  function seasonMatchesSorted(){ return state.season.matches.slice().sort(function(a,b){ return new Date(a.date) - new Date(b.date); }); }
+  function convForPct(m){ return m.attemptsFor > 0 ? Math.round(m.scoreFor/m.attemptsFor*100) : 0; }
+  function convAgainstPct(m){ return m.attemptsAgainst > 0 ? Math.round(m.scoreAgainst/m.attemptsAgainst*100) : 0; }
+  function teamAvgDistance(m){ return round1(m.players.length ? avg(m.players.map(function(p){ return {v:p.distanceMi}; }),'v') : 0); }
+  function teamAvgSpeed(m){ return round1(m.players.length ? avg(m.players.map(function(p){ return {v:p.avgSpeedMph}; }),'v') : 0); }
+  function shotQualityDiff(m){ return round1(m.convFor - m.convAgainst); }
+  function territoryEfficiency(m){ return round1(m.possession > 0 ? (m.attemptsFor / (m.possession/10)) : 0); }
+  function defensiveResilience(m){ return m.scoreAgainst > 0 ? round1(m.shotsAgainst / m.scoreAgainst) : m.shotsAgainst; }
+  function teamDefActions(m){ return sum(m.players.map(function(p){ return {v:(p.tackles||0)+(p.interceptions||0)+(p.looseBallRecoveries||0)}; }),'v'); }
+  function playerInvolvementPer90(p){ return p.minutes > 0 ? ((p.goals*3 + p.assists*2 + p.shots + p.tackles + p.interceptions) / p.minutes * 90) : 0; }
+
+  // ---------------- season trends (small-multiple sparklines) ----------------
+  function sparkGeom(values, w, h, pad){
+    var n = values.length;
+    var min = Math.min.apply(null, values), max = Math.max.apply(null, values);
+    if(min === max){ min -= 1; max += 1; }
+    var range = max - min;
+    var xs = values.map(function(v,i){ return n>1 ? pad + (i/(n-1))*(w-2*pad) : w/2; });
+    var ys = values.map(function(v){ return h - pad - ((v-min)/range)*(h-2*pad); });
+    return {xs:xs, ys:ys};
+  }
+  function buildTrendCard(title, unit, color, higherIsBetter, isRate, valueFn, fmtFn, extraNote){
+    var matches = seasonMatchesSorted();
+    var values = matches.map(valueFn);
+    var card = el('div','trend-card');
+    card.setAttribute('tabindex','0');
+
+    var delta = null, deltaClass = 'flat';
+    if(values.length >= 2){
+      delta = values[values.length-1] - values[values.length-2];
+      if(Math.abs(delta) < 1e-9) deltaClass = 'flat';
+      else deltaClass = (higherIsBetter ? delta>0 : delta<0) ? 'up' : 'down';
+    }
+    var deltaLabel = delta===null ? '' : (Math.abs(delta) < 0.05 ? '— flat' : (delta>0?'▲ +':'▼ ')+fmtFn(Math.abs(delta)));
+
+    var head = el('div','th');
+    head.innerHTML = '<span class="tt">'+title+'</span><span class="td '+deltaClass+'">'+deltaLabel+'</span>';
+    card.appendChild(head);
+
+    if(values.length === 0){
+      card.appendChild(el('div','tnote','No matches logged yet.'));
+    } else if(values.length === 1){
+      var svg1 = document.createElementNS('http://www.w3.org/2000/svg','svg');
+      svg1.setAttribute('viewBox','0 0 260 100');
+      svg1.innerHTML = '<circle cx="130" cy="50" r="5" fill="'+color+'" stroke="var(--card)" stroke-width="2"></circle>'+
+        '<text x="130" y="78" text-anchor="middle" font-size="13" fill="var(--text)" font-weight="700">'+fmtFn(values[0])+'</text>';
+      card.appendChild(svg1);
+      card.appendChild(el('div','tnote','Only one match logged — the trend fills in as more are added.'));
+    } else {
+      var W=260, H=100, PAD=14;
+      var sp = sparkGeom(values, W, H, PAD);
+      var svg = document.createElementNS('http://www.w3.org/2000/svg','svg');
+      svg.setAttribute('viewBox','0 0 '+W+' '+H);
+      var gridline = '<line x1="'+PAD+'" y1="'+(H-PAD)+'" x2="'+(W-PAD)+'" y2="'+(H-PAD)+'" stroke="var(--line)" stroke-width="1"></line>';
+      var pathD = sp.xs.map(function(x,i){ return (i===0?'M':'L') + x.toFixed(1) + ' ' + sp.ys[i].toFixed(1); }).join(' ');
+      var pathEl = '<path d="'+pathD+'" fill="none" stroke="'+color+'" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>';
+      var dots = sp.xs.map(function(x,i){
+        var m = matches[i];
+        var titleTxt = 'vs ' + m.opponent.split(' ')[0] + ' (' + fmtDate(m.date) + '): ' + fmtFn(values[i]);
+        var r = (i === sp.xs.length-1) ? 5 : 3.5;
+        return '<circle cx="'+x.toFixed(1)+'" cy="'+sp.ys[i].toFixed(1)+'" r="'+r+'" fill="'+color+'" stroke="var(--card)" stroke-width="2"><title>'+titleTxt+'</title></circle>';
+      }).join('');
+      var lastLabel = '<text x="'+sp.xs[sp.xs.length-1].toFixed(1)+'" y="'+(sp.ys[sp.ys.length-1]-10).toFixed(1)+'" text-anchor="end" font-size="12" fill="var(--text)" font-weight="700">'+fmtFn(values[values.length-1])+'</text>';
+      svg.innerHTML = gridline + pathEl + dots + lastLabel;
+      card.appendChild(svg);
+      card.appendChild(el('div','tnote', values.length + ' matches logged' + (extraNote ? (' · '+extraNote) : '')));
+    }
+
+    card.onclick = function(){ openMetricModal(title, unit, valueFn, {isRate:isRate}); };
+    card.onkeydown = function(e){ if(e.key==='Enter' || e.key===' '){ e.preventDefault(); card.onclick(); } };
+    return card;
+  }
+  function renderTrends(){
+    var wrap = document.getElementById('trendGrid');
+    wrap.innerHTML = '';
+    if(!state.season.matches.length){ wrap.appendChild(el('div','empty','No matches logged yet.')); return; }
+    var cards = [
+      buildTrendCard('Possession', '%', 'var(--accent)', true, true, function(m){ return m.possession; }, function(v){ return Math.round(v)+'%'; }),
+      buildTrendCard('Goals scored', '', 'var(--series-own)', true, false, function(m){ return m.scoreFor; }, function(v){ return String(Math.round(v)); }),
+      buildTrendCard('Goals conceded', '', 'var(--series-opp)', false, false, function(m){ return m.scoreAgainst; }, function(v){ return String(Math.round(v)); }),
+      buildTrendCard('Shot conversion (for)', '%', 'var(--accent)', true, true, convForPct, function(v){ return Math.round(v)+'%'; }),
+      buildTrendCard('Shot quality differential', ' pts', 'var(--accent-strong)', true, true, shotQualityDiff, function(v){ return Math.round(v)+' pts'; }, 'conversion for minus against'),
+      buildTrendCard('Team avg distance', ' mi', 'var(--series-own)', true, true, teamAvgDistance, function(v){ return oneDec(v)+' mi'; }, 'per player, per match')
+    ];
+    cards.forEach(function(c){ wrap.appendChild(c); });
+  }
+
+  // ---------------- advanced metrics strip ----------------
+  function advancedTileDefs(){
+    return [
+      {lbl:'Shot quality differential', valueFn:shotQualityDiff, unit:' pts', isRate:true, fmt:function(v){ return (v>0?'+':'')+Math.round(v); }, sub:'conversion for minus against'},
+      {lbl:'Territory efficiency', valueFn:territoryEfficiency, unit:' att/10%poss', isRate:true, fmt:oneDec, sub:'attempts created per 10% possession held'},
+      {lbl:'Defensive resilience', valueFn:defensiveResilience, unit:' shots/goal', isRate:true, fmt:oneDec, sub:'shots faced per goal conceded'},
+      {lbl:'Team work rate', valueFn:teamDefActions, unit:'', isRate:false, fmt:function(v){ return Math.round(v); }, sub:'defensive actions per match'},
+      {lbl:'Team avg distance', valueFn:teamAvgDistance, unit:' mi', isRate:true, fmt:oneDec, sub:'per player, per match'},
+      {lbl:'Team avg speed', valueFn:teamAvgSpeed, unit:' mph', isRate:true, fmt:oneDec, sub:'per player, per match'}
+    ];
+  }
+  function renderAdvanced(matches){
+    var wrap = document.getElementById('advancedStrip');
+    wrap.innerHTML = '';
+    if(matches.length === 0){ wrap.appendChild(el('div','empty','Select at least one game.')); return; }
+    advancedTileDefs().forEach(function(t){
+      var vals = matches.map(t.valueFn);
+      var avgVal = vals.length ? vals.reduce(function(a,b){ return a+b; },0)/vals.length : 0;
+      var box = el('div','kpi-box');
+      box.innerHTML = '<div class="lbl">'+t.lbl+'</div><div class="val">'+t.fmt(avgVal)+'<span class="unit">'+t.unit+'</span></div><div class="sub">'+t.sub+'</div>';
+      box.setAttribute('tabindex','0');
+      box.onclick = function(){ openMetricModal(t.lbl, t.unit, t.valueFn, {isRate:t.isRate}); };
+      box.onkeydown = function(e){ if(e.key==='Enter' || e.key===' '){ e.preventDefault(); box.onclick(); } };
+      wrap.appendChild(box);
+    });
+  }
+
+  // ---------------- weekly prep ----------------
+  function metricDirectionMap(){
+    return [
+      {label:'Possession', higherIsBetter:true, valueFn:function(m){ return m.possession; }, fmt:function(v){ return Math.round(v)+'%'; }},
+      {label:'Shot conversion (for)', higherIsBetter:true, valueFn:convForPct, fmt:function(v){ return Math.round(v)+'%'; }},
+      {label:'Shot conversion (against)', higherIsBetter:false, valueFn:convAgainstPct, fmt:function(v){ return Math.round(v)+'%'; }},
+      {label:'Attempts created', higherIsBetter:true, valueFn:function(m){ return m.attemptsFor; }, fmt:function(v){ return Math.round(v)+''; }},
+      {label:'Attempts conceded', higherIsBetter:false, valueFn:function(m){ return m.attemptsAgainst; }, fmt:function(v){ return Math.round(v)+''; }},
+      {label:'Defensive work rate', higherIsBetter:true, valueFn:teamDefActions, fmt:function(v){ return Math.round(v)+''; }},
+      {label:'Team avg distance', higherIsBetter:true, valueFn:teamAvgDistance, fmt:function(v){ return oneDec(v)+' mi'; }}
+    ];
+  }
+  function computeWeeklyDeltas(latest, prior){
+    return metricDirectionMap().map(function(mx){
+      var latestVal = mx.valueFn(latest);
+      var priorVals = prior.map(mx.valueFn);
+      var priorAvg = priorVals.reduce(function(a,b){ return a+b; },0) / priorVals.length;
+      var delta = latestVal - priorAvg;
+      var good = mx.higherIsBetter ? delta > 0 : delta < 0;
+      return {metric:mx, latestVal:latestVal, priorAvg:priorAvg, delta:delta, good:good, mag:Math.abs(delta)};
+    });
+  }
+  function renderWeeklyPrep(){
+    var body = document.getElementById('prepBody');
+    var lede = document.getElementById('prepLede');
+    body.innerHTML = '';
+    var all = seasonMatchesSorted();
+    if(all.length === 0){
+      lede.textContent = 'Log a match to generate weekly prep.';
+      return;
+    }
+    var latest = all[all.length-1];
+    var prior = all.slice(0, -1);
+    lede.textContent = prior.length
+      ? ('Built from the ' + fmtDate(latest.date) + ' match vs. ' + latest.opponent + ', compared against the prior ' + prior.length + ' match' + (prior.length===1?'':'es') + '.')
+      : ('Built from the ' + fmtDate(latest.date) + ' match vs. ' + latest.opponent + ' — log a second match to unlock trend comparisons.');
+
+    var formWrap = el('div','prep-form');
+    all.slice(-5).forEach(function(m){
+      var chip = el('div','fchip ' + m.result, m.result);
+      chip.title = 'vs ' + m.opponent + ' (' + fmtDate(m.date) + '), ' + m.scoreFor + '–' + m.scoreAgainst;
+      formWrap.appendChild(chip);
+    });
+    body.appendChild(formWrap);
+
+    var deltas = prior.length ? computeWeeklyDeltas(latest, prior) : [];
+    var grid = el('div','prep-grid');
+    var goodCol = el('div','prep-col good');
+    goodCol.appendChild(el('h4', null, '▲ Going well'));
+    var badCol = el('div','prep-col bad');
+    badCol.appendChild(el('h4', null, '▼ Needs work'));
+
+    if(deltas.length === 0){
+      goodCol.appendChild(el('div','prep-item','Not enough matches yet to compare trends — this fills in after the next one is logged.'));
+      badCol.appendChild(el('div','prep-item','Not enough matches yet to compare trends.'));
+    } else {
+      var goodOnes = deltas.filter(function(d){ return d.good && d.mag > 0.4; }).sort(function(a,b){ return b.mag-a.mag; }).slice(0,3);
+      var badOnes = deltas.filter(function(d){ return !d.good && d.mag > 0.4; }).sort(function(a,b){ return b.mag-a.mag; }).slice(0,3);
+      if(goodOnes.length === 0) goodCol.appendChild(el('div','prep-item','Nothing moved enough to flag — steady week.'));
+      goodOnes.forEach(function(d){
+        goodCol.appendChild(el('div','prep-item','<b>'+d.metric.label+'</b> — '+d.metric.fmt(d.latestVal)+' last match, vs. '+d.metric.fmt(d.priorAvg)+' average before that.'));
+      });
+      if(badOnes.length === 0) badCol.appendChild(el('div','prep-item','Nothing dropped enough to flag — steady week.'));
+      badOnes.forEach(function(d){
+        badCol.appendChild(el('div','prep-item','<b>'+d.metric.label+'</b> — '+d.metric.fmt(d.latestVal)+' last match, vs. '+d.metric.fmt(d.priorAvg)+' average before that.'));
+      });
+    }
+    grid.appendChild(goodCol); grid.appendChild(badCol);
+    body.appendChild(grid);
+
+    body.appendChild(el('div','modal-section-title','Player spotlights'));
+    var spotRow = el('div','prep-spotlight');
+    var candidates = [];
+    latest.players.forEach(function(lp){
+      var priorApps = prior.map(function(m){ return m.players.find(function(x){ return String(x.jersey)===String(lp.jersey); }); }).filter(Boolean);
+      if(priorApps.length === 0) return;
+      var latestScore = playerInvolvementPer90(lp);
+      var priorScores = priorApps.map(playerInvolvementPer90);
+      var priorAvgScore = priorScores.reduce(function(a,b){ return a+b; },0) / priorScores.length;
+      candidates.push({jersey:lp.jersey, latest:lp, delta: latestScore - priorAvgScore});
+    });
+    candidates.sort(function(a,b){ return b.delta - a.delta; });
+    var riser = candidates.length && candidates[0].delta > 0 ? candidates[0] : null;
+    var faller = candidates.length && candidates[candidates.length-1].delta < 0 ? candidates[candidates.length-1] : null;
+    if(riser && faller && riser.jersey === faller.jersey) faller = null;
+
+    if(!riser && !faller){
+      spotRow.appendChild(el('div','prep-item','Not enough match-to-match history per player yet — this fills in as players log a second match.'));
+    } else {
+      if(riser){
+        var rc = el('div','prep-player up');
+        rc.innerHTML = '<div class="av">#'+riser.jersey+'</div><div><div class="pt">Trending up</div><div class="pd">Involvement up from their recent average (goals/assists/shots/defensive actions, per 90). '+riser.latest.goals+'G '+riser.latest.assists+'A last match.</div></div>';
+        rc.style.cursor = 'pointer';
+        rc.onclick = function(){ openPlayerModal(riser.jersey); };
+        spotRow.appendChild(rc);
+      }
+      if(faller){
+        var fc = el('div','prep-player watch');
+        fc.innerHTML = '<div class="av">#'+faller.jersey+'</div><div><div class="pt">Worth a check-in</div><div class="pd">Output down from their recent average — could be matchup, fatigue, or role. Worth a word before next week.</div></div>';
+        fc.style.cursor = 'pointer';
+        fc.onclick = function(){ openPlayerModal(faller.jersey); };
+        spotRow.appendChild(fc);
+      }
+    }
+    body.appendChild(spotRow);
+
+    body.appendChild(el('div','modal-section-title','Coach notes — most recent match'));
+    var notesCol = el('div','prep-col notes');
+    var cueText = (latest.moments && latest.moments.own && latest.moments.own[0]) ? (latest.moments.own[0].minute+'’ — '+latest.moments.own[0].note) : 'See Game breakdown section below.';
+    notesCol.innerHTML = '<h4>vs. '+latest.opponent+' ('+fmtDate(latest.date)+')</h4>'+
+      '<div class="prep-item">'+latest.read+'</div>'+
+      '<div class="prep-item"><b>Film cue:</b> '+cueText+'</div>';
+    body.appendChild(notesCol);
+  }
+
   // ---------------- wire up ----------------
   function renderAll(){
     var matches = selectedMatches();
     renderFilterBar();
+    renderWeeklyPrep();
     renderSnapshot(matches);
+    renderTrends();
+    renderAdvanced(matches);
     renderMatchCards(matches);
     renderGB(matches);
     renderZones(matches);
