@@ -7,29 +7,32 @@
 <link rel="icon" href="assets/logo.png">
 <style>
   :root{
-    --accent:#6e3fa3; --accent-strong:#3b1f63; --accent-soft:#efe6f8;
-    --series-own:#4a3aa7; --series-own-lt:#9085e9;
+    /* Steel-grey canvas + near-black cards + purple brand accent — one deliberate dark theme
+       (not system-light/dark adaptive) so the near-black cards always read clearly against the
+       page background instead of nearly matching it. */
+    --accent:#a77dd9; --accent-strong:#6e3fa3; --accent-soft:#2a2035;
+    --series-own:#9085e9; --series-own-lt:#4a3aa7;
     --series-opp:#eb6834; --series-opp-lt:#d95926;
-    --bg:#faf9f6; --card:#ffffff; --line:#e3ded0; --text:#1c2620; --text-dim:#5b675f; --text-mute:#8a938c;
-    --good-bg:#eaf7ec; --good-line:#bfe2c5; --good-text:#0f5d24;
-    --bad-bg:#fcefec; --bad-line:#f0c9c0; --bad-text:#8a2c21;
-    --warn-bg:#fdf4e3; --warn-line:#eed9a8; --warn-text:#8a6115;
+    --bg:#43454e; --card:#17151c; --line:#3a3542; --text:#f5f3f9; --text-dim:#c8c3d3; --text-mute:#96909f;
+    --good-bg:#153322; --good-line:#22502f; --good-text:#7fd694;
+    --bad-bg:#3a1e19; --bad-line:#5c2c22; --bad-text:#f0a58f;
+    --warn-bg:#332a13; --warn-line:#5c4c1f; --warn-text:#e8c675;
     --radius:12px;
     font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
   }
-  @media (prefers-color-scheme: dark){
-    :root{
-      --accent:#b48ee0; --accent-strong:#d9c3f5; --accent-soft:#2c2140;
-      --series-own:#9085e9; --series-own-lt:#4a3aa7;
-      --series-opp:#eb6834; --series-opp-lt:#d95926;
-      --bg:#15131a; --card:#1e1c26; --line:#33303e; --text:#f1eef7; --text-dim:#b3aec2; --text-mute:#8a8598;
-      --good-bg:#153322; --good-line:#22502f; --good-text:#7fd694;
-      --bad-bg:#3a1e19; --bad-line:#5c2c22; --bad-text:#f0a58f;
-      --warn-bg:#332a13; --warn-line:#5c4c1f; --warn-text:#e8c675;
-    }
-  }
   *{box-sizing:border-box;}
-  body{margin:0; background:var(--bg); color:var(--text); line-height:1.5; padding-bottom:60px;}
+  body{
+    margin:0; background:var(--bg); color:var(--text); line-height:1.5; padding-bottom:60px;
+    min-height:100vh; position:relative;
+  }
+  /* Purple bars down both sides of the viewport, fixed so they stay put while the page scrolls —
+     a small echo of the header's brand gradient framing the steel-grey canvas. */
+  body::before, body::after{
+    content:""; position:fixed; top:0; bottom:0; width:14px; z-index:0; pointer-events:none;
+    background:linear-gradient(180deg, #241a34 0%, #6e3fa3 22%, #9f72d1 50%, #6e3fa3 78%, #241a34 100%);
+  }
+  body::before{ left:0; }
+  body::after{ right:0; }
   a{color:var(--accent);}
   img{max-width:100%;}
 
