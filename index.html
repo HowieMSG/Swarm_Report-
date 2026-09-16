@@ -120,6 +120,12 @@
   .stat-tile{background:var(--bg); border:1px solid var(--line); border-radius:9px; padding:9px 11px;}
   .stat-tile .k{font-size:.62rem; text-transform:uppercase; letter-spacing:.3px; color:var(--text-mute); font-weight:700; margin-bottom:3px;}
   .stat-tile .v{font-size:1.02rem; font-weight:800;}
+  .adv-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:9px; margin-bottom:4px;}
+  .adv-tile{background:var(--bg); border:1px solid var(--line); border-radius:9px; padding:9px 30px 9px 11px; position:relative;}
+  .adv-tile .k{font-size:.62rem; text-transform:uppercase; letter-spacing:.3px; color:var(--text-mute); font-weight:700; margin-bottom:3px;}
+  .adv-tile .v{font-size:1.02rem; font-weight:800;}
+  .adv-tile .cmp{font-size:.68rem; color:var(--text-dim); margin-top:2px;}
+  .adv-tile .info-btn{top:7px; right:7px;}
   table.modal-table{width:100%; border-collapse:collapse; font-size:.78rem;}
   table.modal-table th{text-align:right; font-size:.64rem; text-transform:uppercase; letter-spacing:.3px; color:var(--text-mute); padding:6px 8px; border-bottom:2px solid var(--line); background:var(--accent-soft);}
   table.modal-table th:first-child, table.modal-table td:first-child{text-align:left;}
@@ -154,12 +160,20 @@
 
   /* KPI strip */
   .kpi-strip{display:grid; grid-template-columns:repeat(5,1fr); gap:10px;}
-  .kpi-box{background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:12px 14px;}
-  .kpi-box .lbl{font-size:.68rem; text-transform:uppercase; letter-spacing:.5px; color:var(--text-mute); font-weight:700; margin-bottom:5px;}
+  .kpi-box{background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:12px 14px; position:relative;}
+  .kpi-box .lbl{font-size:.68rem; text-transform:uppercase; letter-spacing:.5px; color:var(--text-mute); font-weight:700; margin-bottom:5px; padding-right:16px;}
   .kpi-box .val{font-size:1.5rem; font-weight:800;}
   .kpi-box .val .unit{font-size:.72rem; color:var(--text-mute); font-weight:500; margin-left:2px;}
   .kpi-box .sub{font-size:.72rem; color:var(--text-dim); margin-top:2px;}
   @media (max-width:820px){ .kpi-strip{grid-template-columns:repeat(2,1fr);} }
+
+  /* info button (metric definitions) */
+  .info-btn{
+    position:absolute; top:9px; right:9px; width:18px; height:18px; padding:0; border-radius:50%;
+    border:1px solid var(--line); background:var(--bg); color:var(--text-mute); font-size:.66rem; line-height:1;
+    display:flex; align-items:center; justify-content:center; cursor:pointer;
+  }
+  .info-btn:hover{border-color:var(--accent); color:var(--accent-strong); background:var(--accent-soft);}
 
   /* match cards */
   .match-card{background:var(--card); border:1px solid var(--line); border-radius:var(--radius); overflow:hidden; margin-bottom:14px;}
@@ -379,7 +393,7 @@
 
   <section id="advanced" class="coach-only">
     <div class="sec-head"><h2 class="stitle">Advanced metrics</h2><button class="export-btn" id="expAdvanced" type="button">⤓ Export</button></div>
-    <p class="slede">Composite numbers built from the raw stats above — not anything Veo computes directly. Click a tile to see it by game.</p>
+    <p class="slede">Composite numbers built from the raw stats above — not anything Veo computes directly. Click a tile to see it by game, or the ⓘ for what it means. Player-level versions of most of these are on each player's profile card.</p>
     <div class="kpi-strip" id="advancedStrip"></div>
   </section>
 
@@ -433,6 +447,7 @@
 <button class="export-fab" id="exportFab" type="button">🧺 Master export <span class="count">0</span></button>
 <div id="toastRoot"></div>
 <div id="modalRoot"></div>
+<div id="infoPopoverRoot"></div>
 <div class="print-only" id="printRoot"></div>
 
 <script id="embedded-season-data" type="application/json">
@@ -1965,6 +1980,54 @@
       return derive ? derive(p) : (p[key] || 0);
     };
   }
+  // Player-level counterparts of the team Advanced metrics strip. Values are computed from the
+  // merged player record `p` (already summed/weighted across `scoped`, same object the raw stat
+  // grid above uses) and compared, where the comparison is meaningful, against the team's own
+  // average for those same `scoped` matches — reusing the exact team-side formulas (teamAvgDistance,
+  // teamPassAccuracy, etc.) so the two numbers are always apples-to-apples.
+  function playerAdvTileDefs(jersey, scoped, p){
+    var n = scoped.length || 1;
+    var teamAvgOf = function(fn){
+      var vs = scoped.map(fn);
+      return vs.length ? vs.reduce(function(a,b){ return a+b; }, 0)/vs.length : 0;
+    };
+    var defW = defActionsOf(p);
+    var distPerMatch = (p.distanceMi||0) / n;
+    var hiPerMatch = ((p.highIntensityRuns||0) + (p.sprints||0)) / n;
+    var takeOnsPerMatch = (p.dribbles||0) / n;
+    var discRate = defW > 0 ? round1((p.fouls||0)/defW) : (p.fouls||0);
+
+    return [
+      {lbl:'Defensive workload', val:defW, unit:'', fmt:function(v){ return Math.round(v); },
+        def:'This player’s tackles, interceptions, and loose ball recoveries added together — the individual version of the team’s Work rate tile.', cmp:null},
+      {lbl:'Distance / match', val:distPerMatch, unit:' mi', fmt:oneDec,
+        def:'This player’s own distance covered, averaged per match across the games selected above. Compared against the team’s average for the same games.', cmp:teamAvgOf(teamAvgDistance)},
+      {lbl:'Avg speed', val:p.avgSpeedMph||0, unit:' mph', fmt:oneDec,
+        def:'This player’s own average running speed (not top speed), across the games selected above. Compared against the team’s average for the same games.', cmp:teamAvgOf(teamAvgSpeed)},
+      {lbl:'Pass accuracy', val:p.passSuccessRate||0, unit:'%', fmt:function(v){ return Math.round(v); },
+        def:'This player’s completed passes divided by attempted passes, across the games selected above. Compared against the team’s overall pass accuracy for the same games.', cmp:teamAvgOf(teamPassAccuracy)},
+      {lbl:'Discipline rate', val:discRate, unit:' fouls/def. action', fmt:oneDec,
+        def:'This player’s fouls per defensive action (tackle, interception, or loose ball recovery), across the games selected above. Compared against the team’s rate for the same games.', cmp:teamAvgOf(teamDisciplineRate)},
+      {lbl:'High-intensity workload', val:hiPerMatch, unit:'', fmt:oneDec,
+        def:'This player’s high-intensity runs plus sprints, averaged per match across the games selected above. Compared against the team’s average for the same games.', cmp:teamAvgOf(teamHIWorkload)},
+      {lbl:'Take-ons / match', val:takeOnsPerMatch, unit:'', fmt:oneDec,
+        def:'This player’s dribbles (take-on attempts), averaged per match across the games selected above. Compared against the team’s average for the same games.', cmp:teamAvgOf(teamTakeOns)}
+    ];
+  }
+  function playerAdvancedGrid(jersey, scoped, p){
+    var wrap = el('div');
+    wrap.appendChild(el('div','modal-section-title','Advanced metrics'));
+    var grid = el('div','adv-grid');
+    playerAdvTileDefs(jersey, scoped, p).forEach(function(t){
+      var tile = el('div','adv-tile');
+      var cmpHtml = (t.cmp !== null && t.cmp !== undefined) ? ('<div class="cmp">team avg '+t.fmt(t.cmp)+t.unit+'</div>') : '';
+      tile.innerHTML = '<div class="k">'+t.lbl+'</div><div class="v">'+t.fmt(t.val)+t.unit+'</div>'+cmpHtml;
+      tile.appendChild(infoBtn(t.lbl, t.def));
+      grid.appendChild(tile);
+    });
+    wrap.appendChild(grid);
+    return wrap;
+  }
   function playerTrendSection(jersey, matchesWithPlayer){
     var wrap = el('div');
     wrap.appendChild(el('div','modal-section-title','Development — across the season'));
@@ -2014,6 +2077,7 @@
         body.appendChild(el('div','empty','No stats for this player in the selected game(s).'));
       } else {
         body.appendChild(statGrid(playerStatRows(p)));
+        body.appendChild(playerAdvancedGrid(jersey, scoped, p));
         if(scoped.length > 1){
           body.appendChild(el('div','modal-section-title','Per-game breakdown'));
           body.appendChild(playerPerMatchTable(scoped, jersey));
@@ -2383,6 +2447,38 @@
   function teamDefActions(m){ return sum(m.players.map(function(p){ return {v:(p.tackles||0)+(p.interceptions||0)+(p.looseBallRecoveries||0)}; }),'v'); }
   function playerInvolvementPer90(p){ return p.minutes > 0 ? ((p.goals*3 + p.assists*2 + p.shots + p.tackles + p.interceptions) / p.minutes * 90) : 0; }
   function defActionsOf(p){ return (p.tackles||0) + (p.interceptions||0) + (p.looseBallRecoveries||0); }
+  function teamPassAccuracy(m){
+    var tot = sum(m.players.map(function(p){ return {v:p.passes||0}; }),'v');
+    var suc = sum(m.players.map(function(p){ return {v:p.passesSuccessful||0}; }),'v');
+    return tot > 0 ? round1(suc/tot*100) : 0;
+  }
+  function teamDisciplineRate(m){
+    var fouls = sum(m.players.map(function(p){ return {v:p.fouls||0}; }),'v');
+    var defActs = teamDefActions(m);
+    return defActs > 0 ? round1(fouls/defActs) : fouls;
+  }
+  function teamHIWorkload(m){
+    return round1(m.players.length ? avg(m.players.map(function(p){ return {v:(p.highIntensityRuns||0)+(p.sprints||0)}; }),'v') : 0);
+  }
+  function teamTakeOns(m){
+    return round1(m.players.length ? avg(m.players.map(function(p){ return {v:p.dribbles||0}; }),'v') : 0);
+  }
+
+  // Shared definition text for every advanced metric — used both by the team strip's info
+  // buttons and the matching tiles in each player's profile modal, so the wording never drifts
+  // between the two places it's explained.
+  var ADV_DEFS = {
+    shotQuality: 'Shot conversion for minus shot conversion against, in percentage points. Positive means the team is finishing its own chances more efficiently than it lets the opponent finish theirs. Team-level only — there’s no individual player equivalent, since it compares the whole team’s shots for vs. against in one match.',
+    territory: 'Attempts created for every 10% of possession held. Two teams can both hold 50% possession, but one might turn that time on the ball into far more shots — this measures how efficiently possession converts into attempts. Team-level only — there’s no individual player equivalent.',
+    defResilience: 'Shots faced per goal conceded. A higher number means the defense (and keeper) are facing plenty of shots without them turning into goals — a proxy for defensive/goalkeeping quality under pressure. When the team hasn’t conceded at all, this shows the raw number of shots faced instead. Team-level only — there’s no individual player equivalent.',
+    workRate: 'Every tackle, interception, and loose ball recovery on the roster, added together for the match — a gauge of the team’s total defensive work. Each player’s own version is their Defensive workload tile in their profile.',
+    avgDistance: 'The average distance covered by players who logged minutes that match. Each player’s own distance is shown in their profile, compared against this team figure.',
+    avgSpeed: 'The average of each player’s average running speed that match (not top speed). Each player’s own average speed is shown in their profile, compared against this team figure.',
+    passAccuracy: 'Every completed pass on the roster divided by every pass attempted, as a percentage — the team’s overall ball-retention rate. Each player’s own pass accuracy is shown in their profile, compared against this team figure.',
+    discipline: 'Fouls committed per defensive action (tackle, interception, or loose ball recovery). Lower means the team is defending clean — winning the ball without giving away needless fouls; higher flags a more foul-prone approach. Each player’s own rate is shown in their profile.',
+    hiWorkload: 'High-intensity runs plus sprints, averaged per player for the match — a combined read on top-end physical output beyond raw distance. Each player’s own total is shown in their profile, compared against this team figure.',
+    takeOns: 'Dribbles (take-on attempts), averaged per player for the match. Each player’s own take-on count is shown in their profile, compared against this team figure.'
+  };
 
   // ---------------- time-in-game split (first half vs. second half) ----------------
   // Buckets every tagged shot/goal by raw minute at the 30' mark — this lines up with the "2nd
@@ -2616,13 +2712,65 @@
   // ---------------- advanced metrics strip ----------------
   function advancedTileDefs(){
     return [
-      {lbl:'Shot quality differential', valueFn:shotQualityDiff, unit:' pts', isRate:true, fmt:function(v){ return (v>0?'+':'')+Math.round(v); }, sub:'conversion for minus against'},
-      {lbl:'Territory efficiency', valueFn:territoryEfficiency, unit:' att/10%poss', isRate:true, fmt:oneDec, sub:'attempts created per 10% possession held'},
-      {lbl:'Defensive resilience', valueFn:defensiveResilience, unit:' shots/goal', isRate:true, fmt:oneDec, sub:'shots faced per goal conceded'},
-      {lbl:'Team work rate', valueFn:teamDefActions, unit:'', isRate:false, fmt:function(v){ return Math.round(v); }, sub:'defensive actions per match'},
-      {lbl:'Team avg distance', valueFn:teamAvgDistance, unit:' mi', isRate:true, fmt:oneDec, sub:'per player, per match'},
-      {lbl:'Team avg speed', valueFn:teamAvgSpeed, unit:' mph', isRate:true, fmt:oneDec, sub:'per player, per match'}
+      {lbl:'Shot quality differential', valueFn:shotQualityDiff, unit:' pts', isRate:true, fmt:function(v){ return (v>0?'+':'')+Math.round(v); }, sub:'conversion for minus against', def:ADV_DEFS.shotQuality},
+      {lbl:'Territory efficiency', valueFn:territoryEfficiency, unit:' att/10%poss', isRate:true, fmt:oneDec, sub:'attempts created per 10% possession held', def:ADV_DEFS.territory},
+      {lbl:'Defensive resilience', valueFn:defensiveResilience, unit:' shots/goal', isRate:true, fmt:oneDec, sub:'shots faced per goal conceded', def:ADV_DEFS.defResilience},
+      {lbl:'Team work rate', valueFn:teamDefActions, unit:'', isRate:false, fmt:function(v){ return Math.round(v); }, sub:'defensive actions per match', def:ADV_DEFS.workRate},
+      {lbl:'Team avg distance', valueFn:teamAvgDistance, unit:' mi', isRate:true, fmt:oneDec, sub:'per player, per match', def:ADV_DEFS.avgDistance},
+      {lbl:'Team avg speed', valueFn:teamAvgSpeed, unit:' mph', isRate:true, fmt:oneDec, sub:'per player, per match', def:ADV_DEFS.avgSpeed},
+      {lbl:'Pass accuracy', valueFn:teamPassAccuracy, unit:'%', isRate:true, fmt:function(v){ return Math.round(v); }, sub:'completed passes, whole roster', def:ADV_DEFS.passAccuracy},
+      {lbl:'Discipline rate', valueFn:teamDisciplineRate, unit:' fouls/def. action', isRate:true, fmt:oneDec, sub:'fouls per defensive action', def:ADV_DEFS.discipline},
+      {lbl:'High-intensity workload', valueFn:teamHIWorkload, unit:'', isRate:true, fmt:oneDec, sub:'HI runs + sprints, per player, per match', def:ADV_DEFS.hiWorkload},
+      {lbl:'Take-ons', valueFn:teamTakeOns, unit:'', isRate:true, fmt:oneDec, sub:'dribbles, per player, per match', def:ADV_DEFS.takeOns}
     ];
+  }
+  // Info popovers live in their own root (#infoPopoverRoot), separate from #modalRoot, so opening
+  // one from an info button *inside* an already-open modal (a player profile, a metric drilldown)
+  // layers on top instead of replacing that modal underneath it. Closing the popover restores the
+  // parent modal's own Escape-to-close handling rather than leaving nothing open.
+  function closeInfoModal(){
+    var root = document.getElementById('infoPopoverRoot');
+    if(root._escHandler){ document.removeEventListener('keydown', root._escHandler); root._escHandler = null; }
+    root.innerHTML = '';
+    var modalRoot = document.getElementById('modalRoot');
+    if(modalRoot && modalRoot.innerHTML.trim() !== ''){
+      document.addEventListener('keydown', modalKeyHandler);
+    }
+  }
+  function openInfoModal(title, defText){
+    document.removeEventListener('keydown', modalKeyHandler); // suspend the parent modal's Escape handling while this is open
+    var root = document.getElementById('infoPopoverRoot');
+    root.innerHTML = '';
+    var overlay = el('div','modal-overlay');
+    overlay.style.zIndex = '1100';
+    overlay.onclick = function(e){ if(e.target === overlay) closeInfoModal(); };
+    var panel = el('div','modal-panel');
+    panel.style.maxWidth = '460px';
+    panel.setAttribute('role','dialog');
+    panel.setAttribute('aria-modal','true');
+    var head = el('div','modal-head');
+    head.innerHTML = '<div class="modal-avatar" style="border-radius:12px;">ⓘ</div>'+
+      '<div class="modal-titles"><h3>'+title+'</h3><div class="sub">What this metric means</div></div>';
+    var closeBtn = el('button','modal-close','&times;'); closeBtn.type='button'; closeBtn.setAttribute('aria-label','Close'); closeBtn.onclick = closeInfoModal;
+    head.appendChild(closeBtn);
+    panel.appendChild(head);
+    var body = el('div','modal-body');
+    body.appendChild(el('p','slede', defText));
+    panel.appendChild(body);
+    overlay.appendChild(panel);
+    root.appendChild(overlay);
+    var escHandler = function(e){ if(e.key === 'Escape') closeInfoModal(); };
+    root._escHandler = escHandler;
+    document.addEventListener('keydown', escHandler);
+    closeBtn.focus();
+  }
+  function infoBtn(title, defText){
+    var b = el('button','info-btn','ⓘ');
+    b.type = 'button';
+    b.setAttribute('aria-label', title + ' — what this means');
+    b.title = 'What this metric means';
+    b.onclick = function(e){ e.stopPropagation(); openInfoModal(title, defText); };
+    return b;
   }
   function renderAdvanced(matches){
     var wrap = document.getElementById('advancedStrip');
@@ -2636,6 +2784,7 @@
       box.setAttribute('tabindex','0');
       box.onclick = function(){ openMetricModal(t.lbl, t.unit, t.valueFn, {isRate:t.isRate}); };
       box.onkeydown = function(e){ if(e.key==='Enter' || e.key===' '){ e.preventDefault(); box.onclick(); } };
+      box.appendChild(infoBtn(t.lbl, t.def));
       wrap.appendChild(box);
     });
   }
