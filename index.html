@@ -236,6 +236,30 @@
   .trend-card .td.up{color:var(--good-text);} .trend-card .td.down{color:var(--bad-text);} .trend-card .td.flat{color:var(--text-mute);}
   .trend-card svg{display:block; width:100%; height:auto; margin-top:4px;}
   .trend-card .tnote{font-size:.66rem; color:var(--text-mute); margin-top:2px;}
+  .trend-grid.mini{grid-template-columns:repeat(2,1fr); gap:8px; margin-top:2px;}
+  @media (max-width:480px){ .trend-grid.mini{grid-template-columns:1fr;} }
+  .trend-card:not([tabindex]){cursor:default;}
+
+  /* time & momentum (pattern cards) */
+  .pattern-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:12px;}
+  @media (max-width:820px){ .pattern-grid{grid-template-columns:1fr;} }
+  .pattern-bars{margin-top:8px;}
+  .pattern-card .zrow{margin-bottom:6px;}
+  .pattern-card .zrow:last-child{margin-bottom:0;}
+
+  /* view toggle (coach / family) */
+  .view-toggle{display:flex; align-items:center; gap:10px; margin:0 0 14px; flex-wrap:wrap;}
+  .view-toggle .lbl{font-size:.72rem; text-transform:uppercase; letter-spacing:.6px; color:var(--text-mute); font-weight:700;}
+  .view-toggle .seg-group{display:flex; border:1px solid var(--line); border-radius:8px; overflow:hidden;}
+  .view-toggle .seg{background:var(--card); border:none; color:var(--text-dim); font-size:.78rem; font-weight:700; padding:7px 14px; cursor:pointer;}
+  .view-toggle .seg.active{background:var(--accent); color:#fff;}
+  .view-toggle .seg:not(.active):hover{background:var(--accent-soft);}
+  .view-toggle .copy-link{font-size:.76rem; font-weight:700; color:var(--accent-strong); background:var(--card); border:1px solid var(--line); border-radius:8px; padding:7px 13px; cursor:pointer;}
+  .view-toggle .copy-link:hover{border-color:var(--accent);}
+  .family-banner{display:none; max-width:1180px; margin:0 auto 14px; padding:10px 16px; background:var(--accent-soft); border:1px solid var(--accent); color:var(--accent-strong); border-radius:8px; font-size:.82rem;}
+  .family-banner a{color:var(--accent-strong); font-weight:700;}
+  body.family-mode .family-banner{display:block;}
+  body.family-mode .coach-only{display:none !important;}
 
   /* weekly prep */
   .prep-grid{display:flex; gap:14px; flex-wrap:wrap; margin-bottom:14px;}
@@ -306,14 +330,27 @@
     Showing the data bundled inside this page — the live <code>data/season.json</code> file couldn't be loaded (check that it was uploaded at that exact path). Any recent hand-edits to that file won't show until this is fixed.
   </div>
 
+  <div class="view-toggle" id="viewToggle">
+    <span class="lbl">View</span>
+    <div class="seg-group">
+      <button type="button" class="seg active" data-view="coach">Coach</button>
+      <button type="button" class="seg" data-view="family">Family &amp; players</button>
+    </div>
+    <button type="button" class="copy-link" id="copyFamilyLink">🔗 Copy family view link</button>
+  </div>
+  <div class="family-banner" id="familyBanner">
+    You're viewing the simplified family &amp; player view — tactical sections (weekly prep, advanced metrics, time &amp; momentum, game breakdown, field zones) are hidden. <a href="#" id="switchToCoach">Switch to coach view</a> for the full breakdown.
+  </div>
+
   <nav class="sec-nav" id="secNav">
-    <a href="#weeklyPrep">Weekly prep</a>
+    <a href="#weeklyPrep" class="coach-only">Weekly prep</a>
     <a href="#snapshot">Snapshot</a>
     <a href="#trends">Trends</a>
-    <a href="#advanced">Advanced</a>
+    <a href="#advanced" class="coach-only">Advanced</a>
+    <a href="#patterns" class="coach-only">Patterns</a>
     <a href="#matches">Matches</a>
-    <a href="#gamebreakdown">Game breakdown</a>
-    <a href="#zones">Zones</a>
+    <a href="#gamebreakdown" class="coach-only">Game breakdown</a>
+    <a href="#zones" class="coach-only">Zones</a>
     <a href="#roster">Roster</a>
   </nav>
 
@@ -322,7 +359,7 @@
     <!-- chips injected by JS -->
   </div>
 
-  <section id="weeklyPrep">
+  <section id="weeklyPrep" class="coach-only">
     <div class="sec-head"><h2 class="stitle">Weekly prep</h2><button class="export-btn" id="expPrep" type="button">⤓ Export</button></div>
     <p class="slede" id="prepLede">Auto-built from the most recent logged match vs. the rest of the season — always up to date, independent of the game filter below.</p>
     <div id="prepBody"></div>
@@ -340,10 +377,16 @@
     <div class="trend-grid" id="trendGrid"></div>
   </section>
 
-  <section id="advanced">
+  <section id="advanced" class="coach-only">
     <div class="sec-head"><h2 class="stitle">Advanced metrics</h2><button class="export-btn" id="expAdvanced" type="button">⤓ Export</button></div>
     <p class="slede">Composite numbers built from the raw stats above — not anything Veo computes directly. Click a tile to see it by game.</p>
     <div class="kpi-strip" id="advancedStrip"></div>
+  </section>
+
+  <section id="patterns" class="coach-only">
+    <div class="sec-head"><h2 class="stitle">Time &amp; momentum</h2><button class="export-btn" id="expPatterns" type="button">⤓ Export</button></div>
+    <p class="slede" id="patternsNote">Always the full season, regardless of the game filter above — first half = before the 30’ mark, second half = 30’ onward. Click a card for the by-game breakdown.</p>
+    <div class="pattern-grid" id="patternsGrid"></div>
   </section>
 
   <section id="matches">
@@ -352,13 +395,13 @@
     <div id="matchCards"></div>
   </section>
 
-  <section id="gamebreakdown">
+  <section id="gamebreakdown" class="coach-only">
     <div class="sec-head"><h2 class="stitle">Game breakdown — key moments</h2><button class="export-btn" id="expGB" type="button">⤓ Export</button></div>
     <p class="slede">Every shot and goal Veo's AI tagged. For each selected game: our two best attacking moments, and the opponent's two best scoring chances — cue the film to the minute shown.</p>
     <div id="gbCards"></div>
   </section>
 
-  <section id="zones">
+  <section id="zones" class="coach-only">
     <div class="sec-head"><h2 class="stitle">Field zones</h2><button class="export-btn" id="expZones" type="button">⤓ Export</button></div>
     <p class="slede">Where the team's passes and time-on-ball happen, by pitch third (own team, averaged across the selected games). Click a bar to see it by game.</p>
     <div class="zone-cols" id="zoneCols"></div>
@@ -1518,7 +1561,7 @@
 </script>
 <script>
 (function(){
-  var state = { season: null, selected: new Set(), sortKey: 'goals', sortDir: 'desc', exportQueue: [], per90: false };
+  var state = { season: null, selected: new Set(), sortKey: 'goals', sortDir: 'desc', exportQueue: [], per90: false, view: 'coach' };
 
   function fmtDate(iso){
     var d = new Date(iso + 'T00:00:00');
@@ -1915,6 +1958,34 @@
     wrap.appendChild(table);
     return wrap;
   }
+  function playerValueFn(jersey, key, derive){
+    return function(m){
+      var p = m.players.find(function(x){ return String(x.jersey) === String(jersey); });
+      if(!p) return 0;
+      return derive ? derive(p) : (p[key] || 0);
+    };
+  }
+  function playerTrendSection(jersey, matchesWithPlayer){
+    var wrap = el('div');
+    wrap.appendChild(el('div','modal-section-title','Development — across the season'));
+    var trendMatches = matchesWithPlayer.slice().sort(function(a,b){ return new Date(a.date) - new Date(b.date); });
+    if(trendMatches.length < 2){
+      wrap.appendChild(el('div','tnote','Only one match logged for this player so far — trend lines fill in once a second match is added.'));
+      return wrap;
+    }
+    wrap.appendChild(el('p','slede','Always this player’s full match history, independent of the game-picker above — a trend needs every match to mean anything.'));
+    var grid = el('div','trend-grid mini');
+    grid.appendChild(buildTrendCardFromMatches(trendMatches, 'Goal involvements', '', 'var(--series-own)', true, false,
+      playerValueFn(jersey,'goalInvolvements'), function(v){ return String(Math.round(v)); }));
+    grid.appendChild(buildTrendCardFromMatches(trendMatches, 'Shots', '', 'var(--accent)', true, false,
+      playerValueFn(jersey,'shots'), function(v){ return String(Math.round(v)); }));
+    grid.appendChild(buildTrendCardFromMatches(trendMatches, 'Defensive actions', '', 'var(--accent-strong)', true, false,
+      playerValueFn(jersey, null, defActionsOf), function(v){ return String(Math.round(v)); }, 'tackles + interceptions + loose ball rec.'));
+    grid.appendChild(buildTrendCardFromMatches(trendMatches, 'Distance', ' mi', 'var(--series-own-lt)', true, true,
+      playerValueFn(jersey,'distanceMi'), function(v){ return oneDec(v)+' mi'; }));
+    wrap.appendChild(grid);
+    return wrap;
+  }
   function openPlayerModal(jersey){
     var matchesWithPlayer = state.season.matches.filter(function(m){
       return m.players.some(function(p){ return String(p.jersey) === String(jersey); });
@@ -1947,6 +2018,7 @@
           body.appendChild(el('div','modal-section-title','Per-game breakdown'));
           body.appendChild(playerPerMatchTable(scoped, jersey));
         }
+        body.appendChild(playerTrendSection(jersey, matchesWithPlayer));
         var actions = el('div','modal-actions');
         var expBtn = el('button','export-btn','⤓ Export this player');
         expBtn.type = 'button';
@@ -2194,6 +2266,17 @@
       addToExportQueue({ title:'Advanced metrics', scope: matches.length + ' game(s) selected', columns: cols, rows: rows });
     };
 
+    document.getElementById('expPatterns').onclick = function(){
+      var all = seasonMatchesSorted();
+      if(all.length === 0){ toast('Log a match first.'); return; }
+      var cols = ['Opponent','Date','Goals for 1st','Goals for 2nd','Goals against 1st','Goals against 2nd','Shots for 1st','Shots for 2nd','Shots against 1st','Shots against 2nd'];
+      var rows = all.map(function(m){
+        var own = eventsByHalf(m,'own'), opp = eventsByHalf(m,'opp');
+        return [m.opponent, fmtDate(m.date), own.goals1, own.goals2, opp.goals1, opp.goals2, own.shots1, own.shots2, opp.shots1, opp.shots2];
+      });
+      addToExportQueue({ title:'Time & momentum (by half)', scope: all.length + ' match(es), full season', columns: cols, rows: rows });
+    };
+
     document.getElementById('per90Toggle').addEventListener('click', function(e){
       var btn = e.target.closest('.seg');
       if(!btn) return;
@@ -2299,22 +2382,56 @@
   function defensiveResilience(m){ return m.scoreAgainst > 0 ? round1(m.shotsAgainst / m.scoreAgainst) : m.shotsAgainst; }
   function teamDefActions(m){ return sum(m.players.map(function(p){ return {v:(p.tackles||0)+(p.interceptions||0)+(p.looseBallRecoveries||0)}; }),'v'); }
   function playerInvolvementPer90(p){ return p.minutes > 0 ? ((p.goals*3 + p.assists*2 + p.shots + p.tackles + p.interceptions) / p.minutes * 90) : 0; }
+  function defActionsOf(p){ return (p.tackles||0) + (p.interceptions||0) + (p.looseBallRecoveries||0); }
+
+  // ---------------- time-in-game split (first half vs. second half) ----------------
+  // Buckets every tagged shot/goal by raw minute at the 30' mark — this lines up with the "2nd
+  // period" language already used in this data's own notes (see Game Breakdown), which is the
+  // clearest signal available for where the half boundary actually falls in a running clock.
+  function eventsByHalf(m, side){
+    var log = (m.moments && m.moments.fullLog && m.moments.fullLog[side]) || [];
+    var h1 = log.filter(function(e){ return e.minute < 30; });
+    var h2 = log.filter(function(e){ return e.minute >= 30; });
+    return {
+      shots1: h1.length, shots2: h2.length,
+      goals1: h1.filter(function(e){ return e.isGoal; }).length,
+      goals2: h2.filter(function(e){ return e.isGoal; }).length
+    };
+  }
+  function halfGoalsFor1(m){ return eventsByHalf(m,'own').goals1; }
+  function halfGoalsFor2(m){ return eventsByHalf(m,'own').goals2; }
+  function halfGoalsAgainst1(m){ return eventsByHalf(m,'opp').goals1; }
+  function halfGoalsAgainst2(m){ return eventsByHalf(m,'opp').goals2; }
+  function halfShotsFor1(m){ return eventsByHalf(m,'own').shots1; }
+  function halfShotsFor2(m){ return eventsByHalf(m,'own').shots2; }
+  function halfShotsAgainst1(m){ return eventsByHalf(m,'opp').shots1; }
+  function halfShotsAgainst2(m){ return eventsByHalf(m,'opp').shots2; }
 
   // ---------------- season trends (small-multiple sparklines) ----------------
-  function sparkGeom(values, w, h, pad){
+  function sparkGeom(values, w, h, pad, topPad){
+    // topPad reserves extra headroom above the highest point specifically for the direct
+    // end-label (see buildTrendCardFromMatches) so it never clips against the card's top edge
+    // when the most recent value is also the series max. Defaults to pad (old behavior) if omitted.
+    if(topPad === undefined) topPad = pad;
     var n = values.length;
     var min = Math.min.apply(null, values), max = Math.max.apply(null, values);
     if(min === max){ min -= 1; max += 1; }
     var range = max - min;
     var xs = values.map(function(v,i){ return n>1 ? pad + (i/(n-1))*(w-2*pad) : w/2; });
-    var ys = values.map(function(v){ return h - pad - ((v-min)/range)*(h-2*pad); });
+    var ys = values.map(function(v){ return h - pad - ((v-min)/range)*(h-pad-topPad); });
     return {xs:xs, ys:ys};
   }
   function buildTrendCard(title, unit, color, higherIsBetter, isRate, valueFn, fmtFn, extraNote){
-    var matches = seasonMatchesSorted();
+    return buildTrendCardFromMatches(seasonMatchesSorted(), title, unit, color, higherIsBetter, isRate, valueFn, fmtFn, extraNote,
+      function(){ openMetricModal(title, unit, valueFn, {isRate:isRate}); });
+  }
+  // Generic version: builds the same small-multiple sparkline card from any chronological match list,
+  // with an optional click handler. Backs both the season-wide Trends cards above and the per-player
+  // development lines inside the player profile modal.
+  function buildTrendCardFromMatches(matches, title, unit, color, higherIsBetter, isRate, valueFn, fmtFn, extraNote, onClick){
     var values = matches.map(valueFn);
     var card = el('div','trend-card');
-    card.setAttribute('tabindex','0');
+    if(onClick) card.setAttribute('tabindex','0');
 
     var delta = null, deltaClass = 'flat';
     if(values.length >= 2){
@@ -2339,7 +2456,7 @@
       card.appendChild(el('div','tnote','Only one match logged — the trend fills in as more are added.'));
     } else {
       var W=260, H=100, PAD=14;
-      var sp = sparkGeom(values, W, H, PAD);
+      var sp = sparkGeom(values, W, H, PAD, PAD+14);
       var svg = document.createElementNS('http://www.w3.org/2000/svg','svg');
       svg.setAttribute('viewBox','0 0 '+W+' '+H);
       var gridline = '<line x1="'+PAD+'" y1="'+(H-PAD)+'" x2="'+(W-PAD)+'" y2="'+(H-PAD)+'" stroke="var(--line)" stroke-width="1"></line>';
@@ -2351,14 +2468,17 @@
         var r = (i === sp.xs.length-1) ? 5 : 3.5;
         return '<circle cx="'+x.toFixed(1)+'" cy="'+sp.ys[i].toFixed(1)+'" r="'+r+'" fill="'+color+'" stroke="var(--card)" stroke-width="2"><title>'+titleTxt+'</title></circle>';
       }).join('');
-      var lastLabel = '<text x="'+sp.xs[sp.xs.length-1].toFixed(1)+'" y="'+(sp.ys[sp.ys.length-1]-10).toFixed(1)+'" text-anchor="end" font-size="12" fill="var(--text)" font-weight="700">'+fmtFn(values[values.length-1])+'</text>';
+      var lastLabelY = Math.max(12, sp.ys[sp.ys.length-1]-10);
+      var lastLabel = '<text x="'+sp.xs[sp.xs.length-1].toFixed(1)+'" y="'+lastLabelY.toFixed(1)+'" text-anchor="end" font-size="12" fill="var(--text)" font-weight="700">'+fmtFn(values[values.length-1])+'</text>';
       svg.innerHTML = gridline + pathEl + dots + lastLabel;
       card.appendChild(svg);
       card.appendChild(el('div','tnote', values.length + ' matches logged' + (extraNote ? (' · '+extraNote) : '')));
     }
 
-    card.onclick = function(){ openMetricModal(title, unit, valueFn, {isRate:isRate}); };
-    card.onkeydown = function(e){ if(e.key==='Enter' || e.key===' '){ e.preventDefault(); card.onclick(); } };
+    if(onClick){
+      card.onclick = onClick;
+      card.onkeydown = function(e){ if(e.key==='Enter' || e.key===' '){ e.preventDefault(); onClick(); } };
+    }
     return card;
   }
   function renderTrends(){
@@ -2374,6 +2494,123 @@
       buildTrendCard('Team avg distance', ' mi', 'var(--series-own)', true, true, teamAvgDistance, function(v){ return oneDec(v)+' mi'; }, 'per player, per match')
     ];
     cards.forEach(function(c){ wrap.appendChild(c); });
+  }
+
+  // ---------------- time & momentum (pattern cards) ----------------
+  function patternBarRow(label, val, maxV, color){
+    var row = el('div','zrow');
+    var pct = maxV > 0 ? Math.round(val/maxV*100) : 0;
+    row.innerHTML = '<span class="zl">'+label+'</span><div class="ztrack"><div class="zfill" style="width:'+pct+'%; background:'+color+';"></div></div><span class="zv">'+val+'</span>';
+    return row;
+  }
+  function patternCard(title, val1, val2, color, onClick){
+    var card = el('div','trend-card pattern-card');
+    var head = el('div','th');
+    head.innerHTML = '<span class="tt">'+title+'</span>';
+    card.appendChild(head);
+    var maxV = Math.max(val1, val2, 1);
+    var bars = el('div','pattern-bars');
+    bars.appendChild(patternBarRow('1st half', val1, maxV, color));
+    bars.appendChild(patternBarRow('2nd half', val2, maxV, color));
+    card.appendChild(bars);
+    if(onClick){
+      card.setAttribute('tabindex','0');
+      card.onclick = onClick;
+      card.onkeydown = function(e){ if(e.key==='Enter' || e.key===' '){ e.preventDefault(); onClick(); } };
+    }
+    return card;
+  }
+  function openHalfSplitModal(title, val1Fn, val2Fn){
+    var allMatches = seasonMatchesSorted();
+    var defaultIds = allMatches.filter(function(m){ return state.selected.has(m.id); }).map(function(m){ return m.id; });
+    if(defaultIds.length === 0) defaultIds = allMatches.map(function(m){ return m.id; });
+    var sel = new Set(defaultIds);
+
+    function draw(){
+      var scoped = allMatches.filter(function(m){ return sel.has(m.id); });
+      var v1 = scoped.map(val1Fn), v2 = scoped.map(val2Fn);
+      var t1 = v1.reduce(function(a,b){ return a+b; }, 0), t2 = v2.reduce(function(a,b){ return a+b; }, 0);
+
+      var container = el('div');
+      var head = el('div','modal-head');
+      head.innerHTML = '<div class="modal-avatar" style="border-radius:12px;">⏱</div>'+
+        '<div class="modal-titles"><h3>'+title+' — by half</h3><div class="sub">'+scoped.length+' of '+allMatches.length+' game'+(allMatches.length===1?'':'s')+' selected</div></div>';
+      var closeBtn = el('button','modal-close','&times;'); closeBtn.type='button'; closeBtn.setAttribute('aria-label','Close'); closeBtn.onclick = closeModal;
+      head.appendChild(closeBtn);
+      container.appendChild(head);
+
+      var body = el('div','modal-body');
+      body.appendChild(scopeChips(allMatches, sel, draw));
+      body.appendChild(statGrid([['1st half (0–29’)', t1], ['2nd half (30’+)', t2]]));
+
+      body.appendChild(el('div','modal-section-title','By game'));
+      var wrap = el('div','table-wrap');
+      var table = document.createElement('table');
+      table.className = 'modal-table';
+      var rowsHtml = scoped.map(function(m, i){
+        return '<tr><td>vs '+m.opponent.split(' ')[0]+'</td><td>'+fmtDate(m.date)+'</td><td>'+v1[i]+'</td><td>'+v2[i]+'</td></tr>';
+      }).join('');
+      table.innerHTML = '<thead><tr><th>Opponent</th><th>Date</th><th>1st half</th><th>2nd half</th></tr></thead><tbody>'+rowsHtml+'</tbody>';
+      wrap.appendChild(table);
+      body.appendChild(wrap);
+
+      var actions = el('div','modal-actions');
+      var expBtn = el('button','export-btn','⤓ Export this breakdown');
+      expBtn.type = 'button';
+      expBtn.onclick = function(){
+        var cols = ['Opponent','Date','1st half (0-29 min)','2nd half (30 min+)'];
+        var rows = scoped.map(function(m, i){ return ['vs '+m.opponent, fmtDate(m.date), v1[i], v2[i]]; });
+        rows.push(['TOTAL', '', t1, t2]);
+        addToExportQueue({ title: title + ' by half', scope: scoped.length + ' of ' + allMatches.length + ' game(s) selected', columns: cols, rows: rows });
+      };
+      actions.appendChild(expBtn);
+      body.appendChild(actions);
+
+      container.appendChild(body);
+      openModalShell(container);
+    }
+    draw();
+  }
+  function renderPatterns(){
+    var wrap = document.getElementById('patternsGrid');
+    var noteEl = document.getElementById('patternsNote');
+    wrap.innerHTML = '';
+    var all = seasonMatchesSorted();
+    if(!all.length){ wrap.appendChild(el('div','empty','No matches logged yet.')); return; }
+
+    var gf1=0, gf2=0, ga1=0, ga2=0, sf1=0, sf2=0, sa1=0, sa2=0;
+    all.forEach(function(m){
+      var own = eventsByHalf(m,'own'), opp = eventsByHalf(m,'opp');
+      gf1 += own.goals1; gf2 += own.goals2; sf1 += own.shots1; sf2 += own.shots2;
+      ga1 += opp.goals1; ga2 += opp.goals2; sa1 += opp.shots1; sa2 += opp.shots2;
+    });
+
+    wrap.appendChild(patternCard('Goals scored by half', gf1, gf2, 'var(--series-own)', function(){ openHalfSplitModal('Goals scored', halfGoalsFor1, halfGoalsFor2); }));
+    wrap.appendChild(patternCard('Goals conceded by half', ga1, ga2, 'var(--series-opp)', function(){ openHalfSplitModal('Goals conceded', halfGoalsAgainst1, halfGoalsAgainst2); }));
+    wrap.appendChild(patternCard('Shots created by half', sf1, sf2, 'var(--series-own-lt)', function(){ openHalfSplitModal('Shots created', halfShotsFor1, halfShotsFor2); }));
+    wrap.appendChild(patternCard('Shots faced by half', sa1, sa2, 'var(--series-opp-lt)', function(){ openHalfSplitModal('Shots faced', halfShotsAgainst1, halfShotsAgainst2); }));
+
+    var notes = [];
+    function flag(label, v1, v2){
+      var total = v1 + v2;
+      if(total < 3) return;
+      var big = Math.max(v1,v2), small = Math.min(v1,v2);
+      if(big >= small*2 && big >= 2){
+        var half = v2 > v1 ? 'second' : 'first';
+        notes.push(label + ': ' + big + ' of ' + total + ' have come in the ' + half + ' half.');
+      }
+    }
+    flag('Goals conceded', ga1, ga2);
+    flag('Goals scored', gf1, gf2);
+    flag('Shots faced', sa1, sa2);
+    flag('Shots created', sf1, sf2);
+    var base = 'Always the full season (' + all.length + ' match' + (all.length===1?'':'es') + '), regardless of the game filter above — first half = before the 30’ mark, second half = 30’ onward. Click a card for the by-game breakdown.';
+    if(notes.length){
+      base += ' Early read (small sample — worth re-checking as more matches log): ' + notes.join(' ');
+    } else if(all.length < 3){
+      base += ' Only ' + all.length + ' match' + (all.length===1?'':'es') + ' logged so far — this fills in as more are added.';
+    }
+    noteEl.textContent = base;
   }
 
   // ---------------- advanced metrics strip ----------------
@@ -2526,6 +2763,7 @@
     renderSnapshot(matches);
     renderTrends();
     renderAdvanced(matches);
+    renderPatterns();
     renderMatchCards(matches);
     renderGB(matches);
     renderZones(matches);
@@ -2535,6 +2773,58 @@
   document.getElementById('playerSearch').addEventListener('input', function(){ renderPlayerTable(selectedMatches()); });
   document.getElementById('exportFab').onclick = openMasterExportModal;
   wireSectionExports();
+
+  // ---------------- coach / family view toggle ----------------
+  function applyView(){
+    document.body.classList.toggle('family-mode', state.view === 'family');
+    document.querySelectorAll('#viewToggle .seg').forEach(function(b){
+      b.classList.toggle('active', b.getAttribute('data-view') === state.view);
+    });
+    try {
+      var url = new URL(location.href);
+      if(state.view === 'family') url.searchParams.set('view','family'); else url.searchParams.delete('view');
+      history.replaceState(null, '', url.toString());
+    } catch(e){ /* URL API unavailable — non-fatal, toggle still works this session */ }
+  }
+  function copyText(text){
+    function done(){ toast('Family view link copied — paste it anywhere to share.'); }
+    function fail(){ window.prompt('Copy this link:', text); }
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(text).then(done).catch(fail);
+    } else {
+      try {
+        var ta = document.createElement('textarea');
+        ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+        document.body.appendChild(ta); ta.focus(); ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        done();
+      } catch(e){ fail(); }
+    }
+  }
+  function initView(){
+    try {
+      var params = new URLSearchParams(location.search);
+      if(params.get('view') === 'family') state.view = 'family';
+    } catch(e){ /* ignore */ }
+    applyView();
+    document.getElementById('viewToggle').addEventListener('click', function(e){
+      var btn = e.target.closest('.seg');
+      if(!btn) return;
+      state.view = btn.getAttribute('data-view');
+      applyView();
+    });
+    document.getElementById('switchToCoach').addEventListener('click', function(e){
+      e.preventDefault();
+      state.view = 'coach';
+      applyView();
+    });
+    document.getElementById('copyFamilyLink').addEventListener('click', function(){
+      var url = location.origin + location.pathname + '?view=family';
+      copyText(url);
+    });
+  }
+  initView();
 
   function initSeason(season, isFallback){
     state.season = season;
