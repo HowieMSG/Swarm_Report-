@@ -13,6 +13,14 @@
     },
     "logo": "assets/logo.png"
   },
+  "jerseyRenames": [
+    {
+      "from": "88",
+      "to": "7",
+      "effectiveDate": "2026-09-17",
+      "note": "Now wearing #7 — wore #88 for the Aug 9, 2026 matches (Keystone and Penn Fusion)."
+    }
+  ],
   "matches": [
     {
       "id": "2026-08-09-keystone",

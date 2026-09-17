@@ -357,6 +357,8 @@
   @media (prefers-color-scheme: dark){
     .fallback-banner{background:#3a2f10; border-color:#7a5c1a; color:#f0d38a;}
   }
+  .rename-note{font-size:.76rem; color:var(--text-dim); font-style:italic; padding:8px 12px; margin:0 16px 12px; background:var(--accent-soft); border-left:3px solid var(--accent); border-radius:4px;}
+  .gb-match .rename-note{margin:0 16px 10px;}
 </style>
 </head>
 <body>
@@ -502,6 +504,14 @@
     },
     "logo": "assets/logo.png"
   },
+  "jerseyRenames": [
+    {
+      "from": "88",
+      "to": "7",
+      "effectiveDate": "2026-09-17",
+      "note": "Now wearing #7 — wore #88 for the Aug 9, 2026 matches (Keystone and Penn Fusion)."
+    }
+  ],
   "matches": [
     {
       "id": "2026-08-09-keystone",
@@ -1836,8 +1846,12 @@
       var ownLog = mo.fullLog.own.map(function(e){ return e.minute+'’'+(e.jersey!=null?' #'+e.jersey:'')+(e.isGoal?' (goal, '+e.score+')':''); }).join(', ');
       var oppLog = mo.fullLog.opp.map(function(e){ return e.minute+'’'+(e.jersey!=null?' #'+e.jersey:'')+(e.isGoal?' (goal, '+e.score+')':''); }).join(', ');
 
+      var renameNote = (m._jerseyRenameNotes && m._jerseyRenameNotes.length)
+        ? '<div class="rename-note">Note: ' + m._jerseyRenameNotes.join(' ') + '</div>' : '';
+
       card.innerHTML =
         '<div class="gb-head"><div class="opp">vs. '+m.opponent+'</div><div class="date">'+fmtDate(m.date)+' · Final '+m.scoreFor+'–'+m.scoreAgainst+'</div></div>'+
+        renameNote+
         '<div class="gb-timeline"><div class="line"></div><div class="gb-tl-row">'+tl+'</div></div>'+
         '<div class="gb-cols">'+
           '<div class="gb-col own"><h4>&#9679; Our best attacking moments</h4>'+ownItems+'</div>'+
@@ -1895,6 +1909,55 @@
     return col.fmt ? col.fmt(v) : v;
   }
   function playerColLabel(c){ return c.label + (state.per90 && c.per90 ? '/90' : ''); }
+
+  // ---------------- jersey renames (a player switching squad numbers mid-season) ----------------
+  // season.jerseyRenames is a small, hand-editable list: {from, to, effectiveDate, note}.
+  // Any match dated BEFORE effectiveDate gets that player's records rewritten from the old
+  // number to the new one — in the per-match players array AND in every moments/jersey
+  // reference (timeline, own/opp cards, full shot log) — so the roster table, trends, ACWR,
+  // and percentile profile all merge the player's whole season as one continuous identity under
+  // their current number. Matches on/after effectiveDate are left untouched, since those should
+  // already come from Veo tagged with the new number. Each rewritten match is tagged with
+  // _jerseyRenameNotes so Game Breakdown can show a footnote (the video itself still shows the
+  // old number on the jersey, so the coach needs to know why the site says something different).
+  function applyJerseyRenames(season){
+    var renames = season.jerseyRenames || [];
+    if(!renames.length) return season;
+    renames.forEach(function(r){
+      var fromStr = String(r.from), toStr = String(r.to);
+      var fromNum = parseInt(r.from, 10), toNum = parseInt(r.to, 10);
+      season.matches.forEach(function(m){
+        if(!(m.date < r.effectiveDate)) return; // only older matches get rewritten
+        var hadPlayer = (m.players || []).some(function(p){ return String(p.jersey) === fromStr; });
+        if(!hadPlayer) return;
+        m.players.forEach(function(p){
+          if(String(p.jersey) === fromStr){
+            p._priorJersey = p.jersey;
+            p.jersey = toStr;
+          }
+        });
+        var mo = m.moments;
+        if(mo){
+          (mo.timeline || []).forEach(function(e){ if(e.jersey === fromNum) e.jersey = toNum; });
+          ['own','opp'].forEach(function(side){
+            (mo[side] || []).forEach(function(e){ if(e.jersey === fromNum) e.jersey = toNum; });
+            var fl = mo.fullLog && mo.fullLog[side];
+            (fl || []).forEach(function(e){ if(e.jersey === fromNum) e.jersey = toNum; });
+          });
+        }
+        m._jerseyRenameNotes = m._jerseyRenameNotes || [];
+        m._jerseyRenameNotes.push('#' + toStr + ' wore #' + fromStr + ' in this match — the video will still show #' + fromStr + ' on the jersey.');
+      });
+    });
+    return season;
+  }
+  // Looks up a rename rule by the CURRENT (post-rewrite) jersey number, for the player-modal footnote.
+  function jerseyRenameNote(jersey){
+    var renames = (state.season && state.season.jerseyRenames) || [];
+    var r = renames.find(function(x){ return String(x.to) === String(jersey); });
+    if(!r) return null;
+    return r.note || ('Now wearing #' + r.to + ' — wore #' + r.from + ' before ' + fmtDate(r.effectiveDate) + '.');
+  }
 
   function mergePlayers(matches){
     var byJersey = {};
@@ -2248,6 +2311,8 @@
       container.appendChild(head);
 
       var body = el('div','modal-body');
+      var rnote = jerseyRenameNote(jersey);
+      if(rnote){ body.appendChild(el('div','rename-note', rnote)); }
       body.appendChild(scopeChips(matchesWithPlayer, sel, draw));
 
       if(!p){
@@ -3318,6 +3383,7 @@
   initView();
 
   function initSeason(season, isFallback){
+    applyJerseyRenames(season);
     state.season = season;
     state.selected = new Set(season.matches.map(function(m){ return m.id; }));
     document.getElementById('teamName').textContent = season.team.name;
