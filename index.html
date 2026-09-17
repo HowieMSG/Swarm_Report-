@@ -198,6 +198,19 @@
   }
   .info-btn:hover{border-color:var(--accent); color:var(--accent-strong); background:var(--accent-soft);}
 
+  /* section title with its own info button (percentile profile, etc.) */
+  .modal-section-title.with-info{position:relative; display:inline-block; padding-right:24px;}
+  .modal-section-title.with-info .info-btn{top:-3px; right:0;}
+
+  /* percentile profile radar */
+  .radar-card{background:var(--bg); border:1px solid var(--line); border-radius:var(--radius); padding:10px 8px 4px; display:flex; flex-direction:column; align-items:center; max-width:360px; margin:0 auto 12px;}
+  .radar-card svg{width:100%; max-width:300px; height:auto; display:block;}
+  .radar-legend{display:flex; gap:16px; font-size:.68rem; color:var(--text-dim); margin-top:4px; margin-bottom:6px; flex-wrap:wrap; justify-content:center;}
+  .rl-item{display:flex; align-items:center; gap:5px;}
+  .rl-swatch{width:12px; height:12px; border-radius:3px; display:inline-block;}
+  .rl-swatch.rl-player{background:var(--accent);}
+  .rl-swatch.rl-median{background:transparent; border:1.5px dashed var(--text-mute);}
+
   /* match cards */
   .match-card{background:var(--card); border:1px solid var(--line); border-radius:var(--radius); overflow:hidden; margin-bottom:14px;}
   .match-head{display:flex; align-items:center; justify-content:space-between; padding:12px 16px; background:var(--accent-soft); border-bottom:1px solid var(--line); flex-wrap:wrap; gap:8px;}
@@ -2025,6 +2038,8 @@
     var turnoversPerMatch = (p.passesUnsuccessful||0) / n;
     var teamPassesScoped = scoped.reduce(function(a,m){ return a + teamTotalPasses(m); }, 0);
     var possessionRate = teamPassesScoped > 0 ? round1((p.passes||0) / teamPassesScoped * 100) : 0;
+    var latestScopedDate = scoped.length ? scoped.reduce(function(a,m){ return new Date(m.date) > new Date(a) ? m.date : a; }, scoped[0].date) : null;
+    var acwr = latestScopedDate ? playerACWRAsOf(jersey, latestScopedDate) : null;
 
     return [
       {lbl:'Defensive workload', val:defW, unit:'', fmt:function(v){ return Math.round(v); },
@@ -2044,7 +2059,9 @@
       {lbl:'Turnovers / match', val:turnoversPerMatch, unit:'', fmt:oneDec,
         def:ADV_DEFS.playerTurnovers, cmp:teamAvgOf(teamUnsuccessfulPassesAvg)},
       {lbl:'Possession rate', val:possessionRate, unit:'%', fmt:oneDec,
-        def:ADV_DEFS.playerPossessionRate, cmp:null}
+        def:ADV_DEFS.playerPossessionRate, cmp:null},
+      {lbl:'Workload ratio (ACWR)', val:acwr||0, unit:'', fmt:function(v){ return v>0 ? oneDec(v)+'x' : '—'; },
+        def:ADV_DEFS.playerWorkloadRatio, cmp:teamAvgOf(teamWorkloadRatio)}
     ];
   }
   function playerAdvancedGrid(jersey, scoped, p){
@@ -2079,7 +2096,88 @@
       playerValueFn(jersey, null, defActionsOf), function(v){ return String(Math.round(v)); }, 'tackles + interceptions + loose ball rec.'));
     grid.appendChild(buildTrendCardFromMatches(trendMatches, 'Distance', ' mi', 'var(--series-own-lt)', true, true,
       playerValueFn(jersey,'distanceMi'), function(v){ return oneDec(v)+' mi'; }));
+    grid.appendChild(buildTrendCardFromMatches(trendMatches, 'Workload ratio (ACWR)', '', 'var(--accent-strong)', false, true,
+      function(m){ var v = playerACWRAsOf(jersey, m.date); return v===null ? 0 : v; },
+      function(v){ return v>0 ? oneDec(v)+'x' : '—'; }, 'acute:chronic load — needs a few weeks of match days to move'));
     wrap.appendChild(grid);
+    return wrap;
+  }
+  // ---------------- percentile profile radar ----------------
+  function radarPolar(cx, cy, r, angle){
+    return { x: cx + r*Math.sin(angle), y: cy - r*Math.cos(angle) };
+  }
+  function buildPercentileRadarSvg(profile){
+    var axes = profile.axes;
+    var N = axes.length;
+    var W = 300, H = 280, cx = 150, cy = 132, R = 92;
+    var step = (2*Math.PI) / N;
+
+    var ringLevels = [25, 50, 75, 100];
+    var rings = ringLevels.map(function(lvl){
+      var pts = axes.map(function(_,i){
+        var p = radarPolar(cx, cy, R*lvl/100, i*step);
+        return p.x.toFixed(1)+','+p.y.toFixed(1);
+      }).join(' ');
+      var isMid = lvl === 50;
+      return '<polygon points="'+pts+'" fill="none" stroke="'+(isMid?'var(--text-mute)':'var(--line)')+'" stroke-width="1"'+(isMid?' stroke-dasharray="4 3"':'')+'></polygon>';
+    }).join('');
+
+    var spokes = axes.map(function(_,i){
+      var p = radarPolar(cx, cy, R, i*step);
+      return '<line x1="'+cx+'" y1="'+cy+'" x2="'+p.x.toFixed(1)+'" y2="'+p.y.toFixed(1)+'" stroke="var(--line)" stroke-width="1"></line>';
+    }).join('');
+
+    var dataPts = axes.map(function(ax,i){ return radarPolar(cx, cy, R*Math.max(0,Math.min(100,ax.percentile))/100, i*step); });
+    var dataPolyStr = dataPts.map(function(p){ return p.x.toFixed(1)+','+p.y.toFixed(1); }).join(' ');
+    var dataPoly = '<polygon points="'+dataPolyStr+'" fill="var(--accent)" fill-opacity="0.24" stroke="var(--accent)" stroke-width="2" stroke-linejoin="round"></polygon>';
+
+    var dots = dataPts.map(function(p,i){
+      var ax = axes[i];
+      var titleTxt = ax.lbl+': '+ax.fmt(ax.value)+' — '+ax.percentile+'th percentile on the roster';
+      return '<circle cx="'+p.x.toFixed(1)+'" cy="'+p.y.toFixed(1)+'" r="4" fill="var(--accent)" stroke="var(--card)" stroke-width="1.5"><title>'+titleTxt+'</title></circle>';
+    }).join('');
+
+    var labels = axes.map(function(ax,i){
+      var p = radarPolar(cx, cy, R+24, i*step);
+      var dx = p.x - cx;
+      var anchor = Math.abs(dx) < 4 ? 'middle' : (dx > 0 ? 'start' : 'end');
+      return '<text x="'+p.x.toFixed(1)+'" y="'+p.y.toFixed(1)+'" text-anchor="'+anchor+'" dominant-baseline="middle" font-size="10" fill="var(--text-dim)" font-weight="700">'+ax.lbl+'</text>';
+    }).join('');
+
+    var svg = document.createElementNS('http://www.w3.org/2000/svg','svg');
+    svg.setAttribute('viewBox','0 0 '+W+' '+H);
+    svg.setAttribute('role','img');
+    svg.setAttribute('aria-label','Percentile profile radar chart');
+    svg.innerHTML = rings + spokes + dataPoly + dots + labels;
+    return svg;
+  }
+  function playerPercentileSection(jersey, scoped){
+    var wrap = el('div');
+    wrap.appendChild(sectionTitleWithInfo('Percentile profile', ADV_DEFS.percentileProfile));
+    var profile = playerPercentileProfile(jersey, scoped);
+    if(!profile || profile.rosterSize < 5){
+      wrap.appendChild(el('div','tnote','Not enough roster data yet in the selected game(s) to build a meaningful percentile profile — this needs a handful of teammates with stats logged.'));
+      return wrap;
+    }
+    wrap.appendChild(el('p','slede','Ranked against the '+profile.rosterSize+' Swarm players with stats in the '+scoped.length+' selected game'+(scoped.length===1?'':'s')+'. 50th percentile = roster average.'));
+
+    var card = el('div','radar-card');
+    card.appendChild(buildPercentileRadarSvg(profile));
+    var legend = el('div','radar-legend');
+    legend.innerHTML = '<span class="rl-item"><span class="rl-swatch rl-player"></span>This player</span>'+
+                        '<span class="rl-item"><span class="rl-swatch rl-median"></span>Roster median (50th pct.)</span>';
+    card.appendChild(legend);
+    wrap.appendChild(card);
+
+    var wrapTable = el('div','table-wrap');
+    var table = document.createElement('table');
+    table.className = 'modal-table';
+    var rowsHtml = profile.axes.map(function(ax){
+      return '<tr><td>'+ax.lbl+'</td><td>'+ax.fmt(ax.value)+'</td><td>'+ax.percentile+'th</td></tr>';
+    }).join('');
+    table.innerHTML = '<thead><tr><th>Metric</th><th>Value</th><th>Percentile</th></tr></thead><tbody>'+rowsHtml+'</tbody>';
+    wrapTable.appendChild(table);
+    wrap.appendChild(wrapTable);
     return wrap;
   }
   function openPlayerModal(jersey){
@@ -2111,6 +2209,7 @@
       } else {
         body.appendChild(statGrid(playerStatRows(p)));
         body.appendChild(playerAdvancedGrid(jersey, scoped, p));
+        body.appendChild(playerPercentileSection(jersey, scoped));
         if(scoped.length > 1){
           body.appendChild(el('div','modal-section-title','Per-game breakdown'));
           body.appendChild(playerPerMatchTable(scoped, jersey));
@@ -2512,6 +2611,95 @@
     return round1(m.players.length ? avg(m.players.map(function(p){ return {v:p.passesUnsuccessful||0}; }),'v') : 0);
   }
 
+  // ---------------- workload ratio (ACWR) ----------------
+  // The pro/sports-science standard for flagging injury risk from training/match load: this
+  // match's "acute" load (last 7 days) divided by the "chronic" load (28-day rolling average,
+  // itself averaged back down to a weekly figure so the two sides of the ratio are on the same
+  // footing). ~0.8-1.3 is the commonly cited safe zone; above ~1.5 is when risk rises sharply.
+  // Veo doesn't track a training-load metric directly, so distance covered (already tracked per
+  // player, per match) stands in as the external-load figure — the same simple substitute sports
+  // scientists reach for when they don't have GPS-derived player-load units.
+  //
+  // Because Veo only gives us match days (no training-day load), the rolling window is built from
+  // distinct calendar dates across the *whole* season — not the game-picker's current selection —
+  // summing every match on a shared date first (a tournament doubleheader shouldn't look like two
+  // separate "weeks" of load). A date needs at least one earlier logged date behind it before a
+  // ratio means anything, so playerACWRAsOf returns null (not 0) until there's real history to
+  // compare against — the UI shows a "needs more season history" note instead of a fabricated number.
+  function playerLoadForMatch(p){ return p.distanceMi || 0; }
+  function seasonLoadByDate(){
+    var byDate = {};
+    seasonMatchesSorted().forEach(function(m){
+      var d = m.date;
+      if(!byDate[d]) byDate[d] = {};
+      m.players.forEach(function(p){
+        var j = String(p.jersey);
+        byDate[d][j] = (byDate[d][j] || 0) + playerLoadForMatch(p);
+      });
+    });
+    return Object.keys(byDate).sort().map(function(d){ return {date:d, players:byDate[d]}; });
+  }
+  function playerACWRAsOf(jersey, targetDate){
+    var days = seasonLoadByDate();
+    var MS_DAY = 86400000;
+    var t0 = new Date(targetDate).getTime();
+    var upTo = days.filter(function(d){ return new Date(d.date).getTime() <= t0; });
+    if(upTo.length < 2) return null;
+    var acute = 0, chronic = 0;
+    upTo.forEach(function(d){
+      var load = d.players[String(jersey)] || 0;
+      var dt = (t0 - new Date(d.date).getTime()) / MS_DAY;
+      if(dt >= 0 && dt < 7) acute += load;
+      if(dt >= 0 && dt < 28) chronic += load;
+    });
+    var chronicWeekly = chronic / 4;
+    if(chronicWeekly <= 0) return null;
+    return acute / chronicWeekly;
+  }
+  function teamWorkloadRatio(m){
+    var vals = m.players.map(function(p){ return playerACWRAsOf(p.jersey, m.date); }).filter(function(v){ return v !== null; });
+    return vals.length ? round1(vals.reduce(function(a,b){ return a+b; },0) / vals.length) : 0;
+  }
+
+  // ---------------- percentile profile (roster-relative) ----------------
+  // The other pro/scout staple: instead of a raw number that's hard to judge in isolation, rank a
+  // player against their own roster on each of several metrics, 0-100th percentile. This is exactly
+  // what an Opta-style percentile radar does for professional scouting reports — the difference here
+  // is the peer group is the Swarm roster itself rather than a league-wide database, since that's
+  // the only fair comparison Veo's data supports.
+  function percentileRank(value, allValues){
+    var n = allValues.length;
+    if(n <= 1) return 50;
+    var below = 0, equal = 0;
+    allValues.forEach(function(v){ if(v < value) below++; else if(v === value) equal++; });
+    return Math.round(((below + 0.5*equal) / n) * 100);
+  }
+  function percentileProfileAxes(n){
+    return [
+      {lbl:'Distance', fmt:function(v){ return oneDec(v)+' mi'; }, val:function(p){ return (p.distanceMi||0)/n; }},
+      {lbl:'Sprints', fmt:oneDec, val:function(p){ return (p.sprints||0)/n; }},
+      {lbl:'Pass acc.', fmt:function(v){ return Math.round(v)+'%'; }, val:function(p){ return p.passSuccessRate||0; }},
+      {lbl:'Def. actions', fmt:oneDec, val:function(p){ return defActionsOf(p)/n; }},
+      {lbl:'Goal inv.', fmt:oneDec, val:function(p){ return (p.goalInvolvements||0)/n; }},
+      {lbl:'Take-ons', fmt:oneDec, val:function(p){ return (p.dribbles||0)/n; }}
+    ];
+  }
+  function playerPercentileProfile(jersey, scoped){
+    var merged = mergePlayers(scoped);
+    var n = scoped.length || 1;
+    var target = merged.find(function(x){ return String(x.jersey) === String(jersey); });
+    if(!target) return null;
+    var axes = percentileProfileAxes(n);
+    return {
+      rosterSize: merged.length,
+      axes: axes.map(function(ax){
+        var allVals = merged.map(ax.val);
+        var myVal = ax.val(target);
+        return {lbl:ax.lbl, value:myVal, fmt:ax.fmt, percentile:percentileRank(myVal, allVals)};
+      })
+    };
+  }
+
   // Shared definition text for every advanced metric — used both by the team strip's info
   // buttons and the matching tiles in each player's profile modal, so the wording never drifts
   // between the two places it's explained.
@@ -2529,7 +2717,10 @@
     teamRecoveries: 'Veo’s own “Possession won” stat for this team — the number of times the team regained the ball in open play that match, as tagged directly by Veo’s AI (this is a real Veo metric, not something computed from other stats). Higher means winning the ball back more often. There’s no individual player breakdown of this in Veo, so it’s team-level only.',
     teamTurnovers: 'The same Veo “Possession won” stat, read from the opponent’s side — the number of times the opponent regained the ball in open play that match. Since every time they win it back is a time this team lost it, this is the closest real, Veo-tagged number to a team turnover count. Lower is better. Team-level only — Veo doesn’t attribute “possession won” to individual players, so the player-card version below (Turnovers) uses a different, narrower proxy — see that tile’s own info for the difference.',
     playerTurnovers: 'Unsuccessful passes — every pass Veo tagged as not reaching a teammate. This is a proxy, not a full turnover count: Veo doesn’t tag dispossessions on a dribble or a bad touch as a distinct event for a player, only pass outcomes, so this under-counts real giveaways. It’s still the closest thing Veo tracks per player to “times this player lost the ball.” Team avg is the same figure averaged across the roster for the selected games.',
-    playerPossessionRate: 'This player’s passes attempted as a share of the whole team’s passes attempted that match — a proxy for how much of the team’s ball-moving went through this player. Veo doesn’t track individual time-in-possession or touches, so this uses passes (the closest per-player figure Veo does track) as the stand-in. It is not the same as “time on the ball.”'
+    playerPossessionRate: 'This player’s passes attempted as a share of the whole team’s passes attempted that match — a proxy for how much of the team’s ball-moving went through this player. Veo doesn’t track individual time-in-possession or touches, so this uses passes (the closest per-player figure Veo does track) as the stand-in. It is not the same as “time on the ball.”',
+    teamWorkloadRatio: 'The squad’s average Acute:Chronic Workload Ratio (ACWR) as of this match — the injury-risk metric pro and academy sports scientists use to flag when players are being asked to do a lot more than they’re used to. It compares each player’s load over the last 7 days to their own rolling 28-day average (as a weekly figure), then averages that across everyone who played. Around 0.8-1.3 is the commonly cited safe zone; above ~1.5 is when risk rises. Veo doesn’t track a dedicated training-load number, so distance covered stands in as the load figure — the same simple substitute used when GPS player-load units aren’t available. Needs match history spread across a few weeks before it means anything; shows as "—" until there’s enough season history behind a date. Those safe-zone thresholds were built and tested on adult pros, not 12-13 year-olds, so treat this as directional, not a hard cutoff.',
+    playerWorkloadRatio: 'This player’s own Acute:Chronic Workload Ratio (ACWR) — their distance covered over the last 7 days, divided by their own rolling 28-day average (as a weekly figure). Same metric as the team’s Squad workload ratio tile, one level down. ~0.8-1.3 is the commonly cited safe zone; above ~1.5 flags a sharp jump in load versus what this player is used to — worth a look before piling on more minutes. Needs a few weeks of logged matches before it means anything (shows "—" until then), and the standard thresholds come from adult pro research, not youth players, so read it as a trend to watch rather than a strict rule.',
+    percentileProfile: 'Ranks this player against the rest of the Swarm roster (not a league-wide database — Veo doesn’t offer one, so the fairest comparison available is the team itself) on six metrics spanning physical output, technical ability, defending, and attacking involvement, each as a 0-100th percentile for the games selected above. 50th percentile means exactly average for this roster; 90th means this player is near the top of the team on that metric. This is the same idea behind the percentile radar charts professional scouting departments use to profile a player at a glance — strengths jut outward, gaps pull inward — just benchmarked against teammates instead of a pro league. Needs a reasonable roster size to be meaningful; with a very small sample, percentiles can swing a lot from one game to the next.'
   };
 
   // ---------------- time-in-game split (first half vs. second half) ----------------
@@ -2775,7 +2966,8 @@
       {lbl:'High-intensity workload', valueFn:teamHIWorkload, unit:'', isRate:true, fmt:oneDec, sub:'HI runs + sprints, per player, per match', def:ADV_DEFS.hiWorkload},
       {lbl:'Take-ons', valueFn:teamTakeOns, unit:'', isRate:true, fmt:oneDec, sub:'dribbles, per player, per match', def:ADV_DEFS.takeOns},
       {lbl:'Team recoveries', valueFn:teamRecoveries, unit:'', isRate:false, fmt:function(v){ return Math.round(v); }, sub:'Veo "possession won", per match', def:ADV_DEFS.teamRecoveries},
-      {lbl:'Team turnovers', valueFn:teamTurnovers, unit:'', isRate:false, fmt:function(v){ return Math.round(v); }, sub:'opponent\'s Veo "possession won", per match', def:ADV_DEFS.teamTurnovers}
+      {lbl:'Team turnovers', valueFn:teamTurnovers, unit:'', isRate:false, fmt:function(v){ return Math.round(v); }, sub:'opponent\'s Veo "possession won", per match', def:ADV_DEFS.teamTurnovers},
+      {lbl:'Squad workload ratio', valueFn:teamWorkloadRatio, unit:'', isRate:true, fmt:function(v){ return v>0 ? oneDec(v)+'x' : '—'; }, sub:'acute:chronic load, squad avg', def:ADV_DEFS.teamWorkloadRatio}
     ];
   }
   // Info popovers live in their own root (#infoPopoverRoot), separate from #modalRoot, so opening
@@ -2825,6 +3017,13 @@
     b.title = 'What this metric means';
     b.onclick = function(e){ e.stopPropagation(); openInfoModal(title, defText); };
     return b;
+  }
+  // A modal-section-title with its own info button attached (for sections that need one
+  // definition for the whole section, rather than one per tile inside it).
+  function sectionTitleWithInfo(text, defText){
+    var wrap = el('div','modal-section-title with-info', text);
+    wrap.appendChild(infoBtn(text, defText));
+    return wrap;
   }
   function renderAdvanced(matches){
     var wrap = document.getElementById('advancedStrip');
