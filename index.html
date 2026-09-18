@@ -94,10 +94,12 @@
   .chip.active .result-dot{background:#fff;}
   .chip:not(.active):hover{border-color:var(--accent);}
   .chip.all{font-weight:700;}
+  .chip.last3{font-weight:700;}
   .filter-note{font-size:.76rem; color:var(--text-mute); margin-left:auto;}
 
   section{margin-bottom:30px;}
   .sec-head{display:flex; align-items:baseline; justify-content:space-between; gap:10px; border-bottom:2px solid var(--accent); padding-bottom:6px; margin:0 0 4px; flex-wrap:wrap;}
+  .sec-actions{display:flex; gap:8px; flex-wrap:wrap;}
   h2.stitle{font-size:1.05rem; color:var(--accent-strong); margin:0;}
   @media (prefers-color-scheme: dark){ h2.stitle{color:var(--accent-strong);} }
   .slede{font-size:.86rem; color:var(--text-dim); margin:6px 0 14px;}
@@ -444,8 +446,8 @@
   </section>
 
   <section id="coachingread" class="coach-only">
-    <div class="sec-head"><h2 class="stitle">Coaching read</h2><button class="export-btn" id="expCoachingRead" type="button">⤓ Export</button></div>
-    <p class="slede" id="coachingReadNote">Auto-generated from the derived metrics above — deterministic threshold checks against this team's own prior matches, not an AI summary. Meant to prompt a conversation, not deliver a verdict on anyone.</p>
+    <div class="sec-head"><h2 class="stitle">Coaching read</h2><div class="sec-actions"><button class="export-btn" id="btnCoachingHistory" type="button">🕘 History</button><button class="export-btn" id="expCoachingRead" type="button">⤓ Export</button></div></div>
+    <p class="slede" id="coachingReadNote">Auto-generated from the derived metrics above — deterministic threshold checks against this team's own prior matches, not an AI summary. Meant to prompt a conversation, not deliver a verdict on anyone. Shows the last 3 games by default — use the filter above to compare a different stretch, or "History" for past readings.</p>
     <div id="coachingReadBody"></div>
   </section>
 
@@ -1727,6 +1729,16 @@
     };
     bar.appendChild(allChip);
 
+    var last3Ids = lastNMatchIds(3);
+    var isLast3Active = state.selected.size === last3Ids.length && last3Ids.every(function(id){ return state.selected.has(id); });
+    var last3Chip = el('div', 'chip last3' + (isLast3Active ? ' active' : ''), 'Last 3 games');
+    last3Chip.title = 'Reset to the 3 most recent matches by date';
+    last3Chip.onclick = function(){
+      state.selected = new Set(lastNMatchIds(3));
+      renderAll();
+    };
+    bar.appendChild(last3Chip);
+
     state.season.matches.forEach(function(m){
       var active = state.selected.has(m.id);
       var chip = el('div', 'chip' + (active ? ' active' : ''));
@@ -2621,6 +2633,8 @@
       addToExportQueue({ title:'Coaching read', scope: scoped.length + ' game(s) selected, latest vs. ' + scoped[scoped.length-1].opponent, columns: cols, rows: rows });
     };
 
+    document.getElementById('btnCoachingHistory').onclick = openCoachingHistoryModal;
+
     document.getElementById('per90Toggle').addEventListener('click', function(e){
       var btn = e.target.closest('.seg');
       if(!btn) return;
@@ -2717,6 +2731,10 @@
   // ---------------- derived / advanced metrics ----------------
   function round1(x){ return Math.round(x*10)/10; }
   function seasonMatchesSorted(){ return state.season.matches.slice().sort(function(a,b){ return new Date(a.date) - new Date(b.date); }); }
+  // The last N matches by date (chronological order preserved), as ids — used for the default
+  // "Last 3 games" view and its quick-filter chip, so the newest match is always in view by
+  // default while the filter bar still lets a viewer pick any other combination.
+  function lastNMatchIds(n){ return seasonMatchesSorted().slice(-n).map(function(m){ return m.id; }); }
   function convForPct(m){ return m.attemptsFor > 0 ? Math.round(m.scoreFor/m.attemptsFor*100) : 0; }
   function convAgainstPct(m){ return m.attemptsAgainst > 0 ? Math.round(m.scoreAgainst/m.attemptsAgainst*100) : 0; }
   function teamAvgDistance(m){ return round1(m.players.length ? avg(m.players.map(function(p){ return {v:p.distanceMi}; }),'v') : 0); }
@@ -3267,11 +3285,76 @@
 
     return notes;
   }
+
+  // History: the same deterministic checks, replayed match-by-match across the whole season in
+  // chronological order — what would have been flagged right after each match landed, using
+  // everything logged before it. Independent of the game-filter chips above (which drive the
+  // "current" panel and default to the last 3 games): a past reading stays visible here even
+  // after the filter — or the season — has moved on to newer matches.
+  function computeCoachingReadHistory(){
+    var all = seasonMatchesSorted();
+    var history = [];
+    for(var i=1;i<all.length;i++){
+      var upTo = all.slice(0, i+1);
+      history.push({ match: all[i], notes: computeCoachingReadNotes(upTo) });
+    }
+    return history;
+  }
+  function openCoachingHistoryModal(){
+    var history = computeCoachingReadHistory().slice().reverse(); // most recent reading first
+    var container = el('div');
+    var head = el('div','modal-head');
+    head.innerHTML = '<div class="modal-avatar" style="border-radius:12px;">🕘</div>'+
+      '<div class="modal-titles"><h3>Coaching read — history</h3><div class="sub">What the same threshold checks flagged right after each match, in season order — always the full season, regardless of the filter above.</div></div>';
+    var closeBtn = el('button','modal-close','&times;'); closeBtn.type='button'; closeBtn.setAttribute('aria-label','Close'); closeBtn.onclick = closeModal;
+    head.appendChild(closeBtn);
+    container.appendChild(head);
+
+    var body = el('div','modal-body');
+    if(history.length === 0){
+      body.appendChild(el('div','empty','Needs at least two matches logged before a first reading exists — this fills in once a second match is in the mix.'));
+    } else {
+      history.forEach(function(h){
+        body.appendChild(el('div','modal-section-title', 'vs. ' + h.match.opponent + ' (' + fmtDate(h.match.date) + ')'));
+        var col = el('div','prep-col');
+        if(h.notes.length === 0){
+          col.appendChild(el('div','prep-item','Nothing crossed a notable threshold after this match.'));
+        } else {
+          h.notes.forEach(function(n){
+            col.appendChild(el('div','prep-item','<b>'+n.tag+':</b> '+n.text));
+          });
+        }
+        body.appendChild(col);
+      });
+    }
+
+    var actions = el('div','modal-actions');
+    var expBtn = el('button','export-btn','⤓ Export history');
+    expBtn.type = 'button';
+    expBtn.onclick = function(){
+      if(history.length === 0){ toast('Nothing to export yet.'); return; }
+      var cols = ['Match','Date','Tag','Note'];
+      var rows = [];
+      history.forEach(function(h){
+        if(h.notes.length === 0){
+          rows.push(['vs. '+h.match.opponent, fmtDate(h.match.date), '—', 'Nothing flagged after this match.']);
+        } else {
+          h.notes.forEach(function(n){ rows.push(['vs. '+h.match.opponent, fmtDate(h.match.date), n.tag, n.text]); });
+        }
+      });
+      addToExportQueue({ title:'Coaching read — history', scope: history.length + ' past reading(s), full season order', columns: cols, rows: rows });
+    };
+    actions.appendChild(expBtn);
+    body.appendChild(actions);
+
+    container.appendChild(body);
+    openModalShell(container);
+  }
   function renderCoachingRead(matches){
     var wrap = document.getElementById('coachingReadBody');
     var noteEl = document.getElementById('coachingReadNote');
     wrap.innerHTML = '';
-    var baseNote = 'Auto-generated from the derived metrics above — deterministic threshold checks against this team\'s own prior matches, not an AI summary. Meant to prompt a conversation, not deliver a verdict on anyone.';
+    var baseNote = 'Auto-generated from the derived metrics above — deterministic threshold checks against this team\'s own prior matches, not an AI summary. Meant to prompt a conversation, not deliver a verdict on anyone. Shows the last 3 games by default — use the filter above to compare a different stretch, or "History" for past readings.';
     if(matches.length === 0){ noteEl.textContent = baseNote; wrap.appendChild(el('div','empty','Select at least one game.')); return; }
     var scoped = matches.slice().sort(function(a,b){ return new Date(a.date) - new Date(b.date); });
     if(scoped.length < 2){
@@ -3574,7 +3657,10 @@
   function initSeason(season, isFallback){
     applyJerseyRenames(season);
     state.season = season;
-    state.selected = new Set(season.matches.map(function(m){ return m.id; }));
+    // Default to the 3 most recent matches by date, not the whole season — keeps the page
+    // focused on "what just happened" as new matches are added, while every section (and the
+    // "All games"/"Last 3 games" chips) still lets a viewer widen or pick any other combination.
+    state.selected = new Set(lastNMatchIds(3));
     document.getElementById('teamName').textContent = season.team.name;
     document.getElementById('teamSub').textContent = season.team.club + ' · Veo Analytics Studio';
     document.getElementById('crestImg').src = season.team.logo;
