@@ -401,6 +401,7 @@
     <a href="#trends">Trends</a>
     <a href="#advanced" class="coach-only">Advanced</a>
     <a href="#patterns" class="coach-only">Patterns</a>
+    <a href="#coachingread" class="coach-only">Coaching read</a>
     <a href="#matches">Matches</a>
     <a href="#gamebreakdown" class="coach-only">Game breakdown</a>
     <a href="#zones" class="coach-only">Zones</a>
@@ -440,6 +441,12 @@
     <div class="sec-head"><h2 class="stitle">Time &amp; momentum</h2><button class="export-btn" id="expPatterns" type="button">⤓ Export</button></div>
     <p class="slede" id="patternsNote">Always the full season, regardless of the game filter above — first half = before the 30’ mark, second half = 30’ onward. Click a card for the by-game breakdown.</p>
     <div class="pattern-grid" id="patternsGrid"></div>
+  </section>
+
+  <section id="coachingread" class="coach-only">
+    <div class="sec-head"><h2 class="stitle">Coaching read</h2><button class="export-btn" id="expCoachingRead" type="button">⤓ Export</button></div>
+    <p class="slede" id="coachingReadNote">Auto-generated from the derived metrics above — deterministic threshold checks against this team's own prior matches, not an AI summary. Meant to prompt a conversation, not deliver a verdict on anyone.</p>
+    <div id="coachingReadBody"></div>
   </section>
 
   <section id="matches">
@@ -1061,7 +1068,17 @@
       },
       "opponentPassesCompleted": 104,
       "opponentTackles": 44,
-      "opponentFouls": 3
+      "opponentFouls": 3,
+      "passStringsFor": {
+        "threeToFive": 1,
+        "sixPlus": 0,
+        "longest": 3
+      },
+      "passStringsAgainst": {
+        "threeToFive": 4,
+        "sixPlus": 0,
+        "longest": 3
+      }
     },
     {
       "id": "2026-08-09-pennfusion",
@@ -1664,11 +1681,20 @@
       },
       "opponentPassesCompleted": 84,
       "opponentTackles": 22,
-      "opponentFouls": 3
+      "opponentFouls": 3,
+      "passStringsFor": {
+        "threeToFive": 7,
+        "sixPlus": 0,
+        "longest": 3
+      },
+      "passStringsAgainst": {
+        "threeToFive": 6,
+        "sixPlus": 0,
+        "longest": 3
+      }
     }
   ]
-}
-</script>
+}</script>
 <script>
 (function(){
   var state = { season: null, selected: new Set(), sortKey: 'goals', sortDir: 'desc', exportQueue: [], per90: false, view: 'coach' };
@@ -2584,6 +2610,17 @@
       addToExportQueue({ title:'Time & momentum (by half)', scope: all.length + ' match(es), full season', columns: cols, rows: rows });
     };
 
+    document.getElementById('expCoachingRead').onclick = function(){
+      var matches = matchesForExportScope();
+      if(matches.length < 2){ toast('Select at least two games first.'); return; }
+      var scoped = matches.slice().sort(function(a,b){ return new Date(a.date) - new Date(b.date); });
+      var notes = computeCoachingReadNotes(scoped);
+      if(notes.length === 0){ toast('Nothing flagged for the selected games.'); return; }
+      var cols = ['Tag','Note'];
+      var rows = notes.map(function(n){ return [n.tag, n.text]; });
+      addToExportQueue({ title:'Coaching read', scope: scoped.length + ' game(s) selected, latest vs. ' + scoped[scoped.length-1].opponent, columns: cols, rows: rows });
+    };
+
     document.getElementById('per90Toggle').addEventListener('click', function(e){
       var btn = e.target.closest('.seg');
       if(!btn) return;
@@ -2759,6 +2796,27 @@
     return defActs > 0 ? round1(oppPasses/defActs) : oppPasses;
   }
 
+  // ---------------- build-up sequences (Pass Strings, Sep 18 addition) ----------------
+  // Veo Analytics 2 has its own built-in "Pass Strings" panel per recording (Library → a match →
+  // Analytics → Pass strings), separate from the aggregate Analytics Studio dashboard — it counts
+  // how many times a team strung together 3+ consecutive completed passes before losing the ball,
+  // bucketed into "3 to 5 passes" / "6 or more passes" / "Longest pass string", for each team. It
+  // isn't exportable or in the season-aggregate view, so — like Possession won and the Tier 2 zone
+  // pulls — it's captured match by match from that panel and stored as passStringsFor/Against.
+  // This is the real answer to "can we auto-tag a highlight after 4+ passes in a row": Veo doesn't
+  // expose a way to trigger on that, but it does already count these sequences for us; there's no
+  // per-sequence timestamp to jump to, only match totals.
+  function passStringsForTotal(m){
+    var ps = m.passStringsFor; if(!ps) return 0;
+    return (ps.threeToFive||0) + (ps.sixPlus||0);
+  }
+  function passStringsAgainstTotal(m){
+    var ps = m.passStringsAgainst; if(!ps) return 0;
+    return (ps.threeToFive||0) + (ps.sixPlus||0);
+  }
+  function passStringsForLongest(m){ return (m.passStringsFor && m.passStringsFor.longest) || 0; }
+  function passStringsAgainstLongest(m){ return (m.passStringsAgainst && m.passStringsAgainst.longest) || 0; }
+
   // ---------------- workload ratio (ACWR) ----------------
   // The pro/sports-science standard for flagging injury risk from training/match load: this
   // match's "acute" load (last 7 days) divided by the "chronic" load (28-day rolling average,
@@ -2870,7 +2928,8 @@
     playerWorkloadRatio: 'This player’s own Acute:Chronic Workload Ratio (ACWR) — their distance covered over the last 7 days, divided by their own rolling 28-day average (as a weekly figure). Same metric as the team’s Squad workload ratio tile, one level down. ~0.8-1.3 is the commonly cited safe zone; above ~1.5 flags a sharp jump in load versus what this player is used to — worth a look before piling on more minutes. Needs a few weeks of logged matches before it means anything (shows "—" until then), and the standard thresholds come from adult pro research, not youth players, so read it as a trend to watch rather than a strict rule.',
     percentileProfile: 'Ranks this player against the rest of the Swarm roster (not a league-wide database — Veo doesn’t offer one, so the fairest comparison available is the team itself) on six metrics spanning physical output, technical ability, defending, and attacking involvement, each as a 0-100th percentile for the games selected above. 50th percentile means exactly average for this roster; 90th means this player is near the top of the team on that metric. This is the same idea behind the percentile radar charts professional scouting departments use to profile a player at a glance — strengths jut outward, gaps pull inward — just benchmarked against teammates instead of a pro league. Needs a reasonable roster size to be meaningful; with a very small sample, percentiles can swing a lot from one game to the next.',
     territorialDominance: 'Which team spent more of its time on the ball in the attacking third — using Veo’s own Possession location breakdown for BOTH teams (pulled from each match’s own Analytics panel, using the same "Own team / Opponent" toggle used for Turnovers), not just Highland’s own side. Highland’s attacking-third share and the opponent’s attacking-third share are compared head-to-head and scaled to add up to 100%, so 50% is even, above 50% means Highland held more of the two teams’ combined forward-third presence that match. Caveat: Veo reports each team’s thirds relative to that team’s own attacking direction, not one shared pitch grid, so this is a strong real-data proxy for territorial control rather than an exact overlapping-coordinates measurement. Team-level only — there’s no individual player version of "territory."',
-    pressingIntensity: 'A simplified stand-in for PPDA (Passes Per Defensive Action) — the standard pro metric for pressing intensity. Real PPDA restricts both sides to the attacking third specifically (the opponent’s passes while building out of their own defensive third, divided by the team’s own tackles/interceptions right after losing the ball high up the pitch), which needs zone-by-zone defensive-action data Veo doesn’t expose. This version uses the same basic idea across the WHOLE match instead: the opponent’s own Passes completed (a real number pulled from that match’s Analytics panel, opponent side) divided by Highland’s own defensive actions (tackles + interceptions + loose ball recoveries) for the match. Lower means fewer opponent passes were needed before Highland won the ball back. Because it isn’t zone-restricted, it can’t distinguish pressing high up the pitch from sitting deep and winning it back late — read it as a rough pressing signal, not true PPDA. Team-level only.'
+    pressingIntensity: 'A simplified stand-in for PPDA (Passes Per Defensive Action) — the standard pro metric for pressing intensity. Real PPDA restricts both sides to the attacking third specifically (the opponent’s passes while building out of their own defensive third, divided by the team’s own tackles/interceptions right after losing the ball high up the pitch), which needs zone-by-zone defensive-action data Veo doesn’t expose. This version uses the same basic idea across the WHOLE match instead: the opponent’s own Passes completed (a real number pulled from that match’s Analytics panel, opponent side) divided by Highland’s own defensive actions (tackles + interceptions + loose ball recoveries) for the match. Lower means fewer opponent passes were needed before Highland won the ball back. Because it isn’t zone-restricted, it can’t distinguish pressing high up the pitch from sitting deep and winning it back late — read it as a rough pressing signal, not true PPDA. Team-level only.',
+    passStrings: 'Veo Analytics 2’s own "Pass Strings" panel (pulled per match from that recording’s Analytics tab, not the aggregate Studio dashboard) — how many times the team strung together 3 or more consecutive completed passes before losing the ball, bucketed into "3 to 5" and "6 or more." This tile shows the total count of those sequences (3+, either bucket). The matching "Longest pass string" figure on each match card and in Season trends is Veo’s own longest-sequence number for that match. This is the real, Veo-tracked signal behind "how many times did we string 4+ passes together" — but Veo buckets from 3, not 4, and only gives match totals, not a timestamp for any individual sequence, so it can’t point back to a specific clip. Team-level only — Veo doesn’t break Pass Strings out per player.'
   };
 
   // ---------------- time-in-game split (first half vs. second half) ----------------
@@ -2982,7 +3041,8 @@
       buildTrendCard('Shot quality differential', ' pts', 'var(--accent-strong)', true, true, shotQualityDiff, function(v){ return Math.round(v)+' pts'; }, 'conversion for minus against'),
       buildTrendCard('Team avg distance', ' mi', 'var(--series-own)', true, true, teamAvgDistance, function(v){ return oneDec(v)+' mi'; }, 'per player, per match'),
       buildTrendCard('Territorial dominance', '%', 'var(--accent-strong)', true, true, territorialDominance, function(v){ return Math.round(v)+'%'; }, 'share of both teams\' attacking-third time'),
-      buildTrendCard('Pressing intensity', '', 'var(--accent)', false, true, pressingIntensity, oneDec, 'opponent passes per defensive action')
+      buildTrendCard('Pressing intensity', '', 'var(--accent)', false, true, pressingIntensity, oneDec, 'opponent passes per defensive action'),
+      buildTrendCard('Build-up sequences', '', 'var(--series-own)', true, false, passStringsForTotal, function(v){ return String(Math.round(v)); }, '3+ connected-pass strings, Veo Pass Strings')
     ];
     cards.forEach(function(c){ wrap.appendChild(c); });
   }
@@ -3104,6 +3164,133 @@
     noteEl.textContent = base;
   }
 
+  // ---------------- coaching read (Sep 18 addition) ----------------
+  // Answers "can this be automated" for coaching talking points the way we can actually deliver it:
+  // Veo's own AI-generated version of this (Coach Assist) lives in Veo's account, is Alpha, and is
+  // non-deterministic (an LLM behind fixed prompts) — not something to rebuild here. This is the
+  // alternative that's fully ours: plain threshold checks over metrics already computed above
+  // (workload ratio, percentile profile, territorial dominance, turnovers, in-match half split,
+  // build-up sequences), comparing the most recent match in the current game-filter selection
+  // against the rest of that selection. No LLM, no Veo pull beyond what's already in season.json,
+  // same output every time for the same data. Thresholds are deliberately conservative (see each
+  // check) so this doesn't cry wolf on ordinary match-to-match noise with a 2-3 match sample.
+  function computeCoachingReadNotes(scoped){
+    var notes = [];
+    if(scoped.length < 2) return notes;
+    var latest = scoped[scoped.length-1];
+    var prior = scoped.slice(0, -1);
+    function avgOf(fn){
+      var vals = prior.map(fn);
+      return vals.length ? vals.reduce(function(a,b){ return a+b; },0) / vals.length : null;
+    }
+
+    // 1) Workload risk — players above the ~1.3x safe-zone ceiling as of the latest match's date.
+    var risky = [];
+    latest.players.forEach(function(p){
+      var r = playerACWRAsOf(p.jersey, latest.date);
+      if(r !== null && r > 1.4) risky.push({jersey:p.jersey, r:r});
+    });
+    if(risky.length){
+      risky.sort(function(a,b){ return b.r-a.r; });
+      var names = risky.slice(0,3).map(function(x){ return '#'+x.jersey+' ('+oneDec(x.r)+'x)'; }).join(', ');
+      notes.push({tag:'Workload', text: risky.length + ' player' + (risky.length===1?'':'s') + ' above the typical 1.3x safe-zone ceiling on workload ratio as of the ' + fmtDate(latest.date) + ' match: ' + names + ' — worth a lighter week or an easy day before piling on more minutes.'});
+    }
+
+    // 2) Roster-relative standouts — 90th-percentile-or-better on any axis, from the latest match's roster.
+    var standouts = [];
+    latest.players.forEach(function(p){
+      var prof = playerPercentileProfile(p.jersey, scoped);
+      if(!prof) return;
+      prof.axes.forEach(function(ax){
+        if(ax.percentile >= 90) standouts.push({jersey:p.jersey, lbl:ax.lbl, pct:ax.percentile});
+      });
+    });
+    if(standouts.length){
+      standouts.sort(function(a,b){ return b.pct-a.pct; });
+      var top = standouts.slice(0,2).map(function(s){ return '#'+s.jersey+' ('+s.lbl+', '+s.pct+'th pct. on this roster)'; }).join('; ');
+      notes.push({tag:'Standout', text: 'Worth noticing in the selected games: ' + top + ' — something to build a look around, not a ranking of anyone else.'});
+    }
+
+    // 3) Territorial dominance swing vs. this selection's own prior average.
+    var tdAvg = avgOf(territorialDominance);
+    if(tdAvg !== null){
+      var tdLatest = territorialDominance(latest);
+      if(tdLatest < tdAvg - 15){
+        notes.push({tag:'Territory', text: 'Territorial dominance dropped to ' + Math.round(tdLatest) + '% vs. ' + latest.opponent + ', down from a ' + Math.round(tdAvg) + '% average before that in this selection — worth a look at how the team was building out of the back.'});
+      } else if(tdLatest > tdAvg + 15){
+        notes.push({tag:'Territory', text: 'Territorial dominance jumped to ' + Math.round(tdLatest) + '% vs. ' + latest.opponent + ', up from a ' + Math.round(tdAvg) + '% average before that — real time spent camped in the attacking third.'});
+      }
+    }
+
+    // 4) Turnovers rising vs. this selection's own prior average.
+    var toAvg = avgOf(teamTurnovers);
+    if(toAvg !== null && toAvg > 0){
+      var toLatest = teamTurnovers(latest);
+      if(toLatest > toAvg * 1.3){
+        notes.push({tag:'Turnovers', text: 'Turnovers were up vs. ' + latest.opponent + ' (' + Math.round(toLatest) + ', vs. a ' + Math.round(toAvg) + ' average before that in this selection) — worth reviewing where possession was being given away.'});
+      }
+    }
+
+    // 5) In-match half split, for the latest match only (not a season-wide pattern — see Time & momentum for that).
+    var ownHalf = eventsByHalf(latest,'own'), oppHalf = eventsByHalf(latest,'opp');
+    function halfFlag(label, v1, v2){
+      var total = v1 + v2;
+      if(total < 3) return null;
+      var big = Math.max(v1,v2), small = Math.min(v1,v2);
+      if(big >= small*2 && big >= 2){
+        var half = v2 > v1 ? 'second' : 'first';
+        return label + ' — ' + big + ' of ' + total + ' came in the ' + half + ' half.';
+      }
+      return null;
+    }
+    var halfBits = [
+      halfFlag('Goals scored', ownHalf.goals1, ownHalf.goals2),
+      halfFlag('Goals conceded', oppHalf.goals1, oppHalf.goals2),
+      halfFlag('Shots created', ownHalf.shots1, ownHalf.shots2),
+      halfFlag('Shots faced', oppHalf.shots1, oppHalf.shots2)
+    ].filter(Boolean);
+    if(halfBits.length){
+      notes.push({tag:'Timing', text: 'vs. ' + latest.opponent + ': ' + halfBits.join(' ')});
+    }
+
+    // 6) Build-up length (Veo Pass Strings) — a new season-best own sequence, or getting out-strung by the opponent.
+    if(latest.passStringsFor && latest.passStringsAgainst){
+      var ownStrings = passStringsForTotal(latest), oppStrings = passStringsAgainstTotal(latest);
+      var ownLongest = passStringsForLongest(latest);
+      var seasonBestLongest = Math.max.apply(null, scoped.map(passStringsForLongest));
+      if(ownLongest > 0 && ownLongest >= seasonBestLongest && prior.some(function(m){ return passStringsForLongest(m) > 0; })){
+        notes.push({tag:'Build-up', text: 'Longest own pass string of the selected games came vs. ' + latest.opponent + ' (' + ownLongest + ' connected passes, per Veo’s Pass Strings) — worth showing the group the tape on that sequence.'});
+      } else if(oppStrings >= 3 && oppStrings > ownStrings * 1.5){
+        notes.push({tag:'Build-up', text: 'Conceded more sustained build-up than we created vs. ' + latest.opponent + ' — ' + oppStrings + ' opponent sequences of 3+ connected passes (Veo Pass Strings) vs. ' + ownStrings + ' of our own.'});
+      }
+    }
+
+    return notes;
+  }
+  function renderCoachingRead(matches){
+    var wrap = document.getElementById('coachingReadBody');
+    var noteEl = document.getElementById('coachingReadNote');
+    wrap.innerHTML = '';
+    var baseNote = 'Auto-generated from the derived metrics above — deterministic threshold checks against this team\'s own prior matches, not an AI summary. Meant to prompt a conversation, not deliver a verdict on anyone.';
+    if(matches.length === 0){ noteEl.textContent = baseNote; wrap.appendChild(el('div','empty','Select at least one game.')); return; }
+    var scoped = matches.slice().sort(function(a,b){ return new Date(a.date) - new Date(b.date); });
+    if(scoped.length < 2){
+      noteEl.textContent = baseNote + ' Needs at least two games in the selected range to compare against — this fills in once a second match is in the mix.';
+      return;
+    }
+    noteEl.textContent = baseNote + ' Comparing the ' + fmtDate(scoped[scoped.length-1].date) + ' match against the other ' + (scoped.length-1) + ' selected game' + (scoped.length-1===1?'':'s') + '.';
+    var notes = computeCoachingReadNotes(scoped);
+    var col = el('div','prep-col');
+    if(notes.length === 0){
+      col.appendChild(el('div','prep-item','Nothing crossed a notable threshold in the selected games — steady stretch, nothing flagged.'));
+    } else {
+      notes.forEach(function(n){
+        col.appendChild(el('div','prep-item','<b>'+n.tag+':</b> '+n.text));
+      });
+    }
+    wrap.appendChild(col);
+  }
+
   // ---------------- advanced metrics strip ----------------
   function advancedTileDefs(){
     return [
@@ -3121,7 +3308,8 @@
       {lbl:'Team turnovers', valueFn:teamTurnovers, unit:'', isRate:false, fmt:function(v){ return Math.round(v); }, sub:'opponent\'s Veo "possession won", per match', def:ADV_DEFS.teamTurnovers},
       {lbl:'Squad workload ratio', valueFn:teamWorkloadRatio, unit:'', isRate:true, fmt:function(v){ return v>0 ? oneDec(v)+'x' : '—'; }, sub:'acute:chronic load, squad avg', def:ADV_DEFS.teamWorkloadRatio},
       {lbl:'Territorial dominance', valueFn:territorialDominance, unit:'%', isRate:true, fmt:function(v){ return Math.round(v); }, sub:'share of both teams\' attacking-third time', def:ADV_DEFS.territorialDominance},
-      {lbl:'Pressing intensity', valueFn:pressingIntensity, unit:'', isRate:true, fmt:oneDec, sub:'opponent passes completed per defensive action ("PPDA-lite")', def:ADV_DEFS.pressingIntensity}
+      {lbl:'Pressing intensity', valueFn:pressingIntensity, unit:'', isRate:true, fmt:oneDec, sub:'opponent passes completed per defensive action ("PPDA-lite")', def:ADV_DEFS.pressingIntensity},
+      {lbl:'Build-up sequences', valueFn:passStringsForTotal, unit:'', isRate:false, fmt:function(v){ return Math.round(v); }, sub:'3+ connected-pass strings per match (Veo Pass Strings)', def:ADV_DEFS.passStrings}
     ];
   }
   // Info popovers live in their own root (#infoPopoverRoot), separate from #modalRoot, so opening
@@ -3320,6 +3508,7 @@
     renderTrends();
     renderAdvanced(matches);
     renderPatterns();
+    renderCoachingRead(matches);
     renderMatchCards(matches);
     renderGB(matches);
     renderZones(matches);

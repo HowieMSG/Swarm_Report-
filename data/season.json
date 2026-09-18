@@ -570,7 +570,17 @@
       },
       "opponentPassesCompleted": 104,
       "opponentTackles": 44,
-      "opponentFouls": 3
+      "opponentFouls": 3,
+      "passStringsFor": {
+        "threeToFive": 1,
+        "sixPlus": 0,
+        "longest": 3
+      },
+      "passStringsAgainst": {
+        "threeToFive": 4,
+        "sixPlus": 0,
+        "longest": 3
+      }
     },
     {
       "id": "2026-08-09-pennfusion",
@@ -1173,7 +1183,17 @@
       },
       "opponentPassesCompleted": 84,
       "opponentTackles": 22,
-      "opponentFouls": 3
+      "opponentFouls": 3,
+      "passStringsFor": {
+        "threeToFive": 7,
+        "sixPlus": 0,
+        "longest": 3
+      },
+      "passStringsAgainst": {
+        "threeToFive": 6,
+        "sixPlus": 0,
+        "longest": 3
+      }
     }
   ]
 }
