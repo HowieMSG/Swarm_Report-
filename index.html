@@ -243,6 +243,26 @@
   .zfill{height:100%; border-radius:6px;}
   .zrow .zv{width:34px; text-align:right; font-size:.78rem; font-weight:700; flex:none;}
 
+  /* heat maps */
+  .heatmap-note{background:var(--bg); border-left:3px solid var(--accent); border-radius:0 8px 8px 0; padding:10px 14px; font-size:.82rem; color:var(--text-dim); margin-bottom:14px;}
+  .heatmap-note b{color:var(--text);}
+  .heatmap-match{background:var(--card); border:1px solid var(--line); border-radius:var(--radius); margin-bottom:16px; overflow:hidden;}
+  .heatmap-head{display:flex; align-items:center; justify-content:space-between; padding:12px 16px; background:var(--accent-soft); border-bottom:1px solid var(--line); flex-wrap:wrap; gap:8px;}
+  .heatmap-head .opp{font-weight:800; font-size:1rem;}
+  .heatmap-head .date{font-size:.76rem; color:var(--text-dim);}
+  .heatmap-shape{font-size:.78rem; color:var(--text-dim); background:var(--bg); border-radius:8px; padding:6px 10px;}
+  .heatmap-shape b{color:var(--text);}
+  .heatmap-shape.flag{color:var(--warn-text); background:var(--warn-bg);}
+  .heatmap-shape.flag b{color:var(--warn-text);}
+  .heatmap-body{padding:14px 16px;}
+  .heatmap-grid{display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:14px;}
+  .heatmap-item{background:var(--bg); border:1px solid var(--line); border-radius:10px; padding:8px; text-align:center;}
+  .heatmap-item img{width:100%; border-radius:6px; display:block; background:#0d3b6b;}
+  .heatmap-item .hcap{font-size:.72rem; color:var(--text-dim); margin-top:6px; font-weight:700;}
+  .heatmap-item .hcap .team{color:var(--text);}
+  .heatmap-shotmap{max-width:320px; margin:0 auto;}
+  @media(max-width:640px){ .heatmap-grid{grid-template-columns:1fr;} }
+
   /* game breakdown */
   .gb-match{background:var(--card); border:1px solid var(--line); border-radius:var(--radius); margin-bottom:16px; overflow:hidden;}
   .gb-head{display:flex; align-items:center; justify-content:space-between; padding:12px 16px; background:var(--accent-soft); border-bottom:1px solid var(--line); flex-wrap:wrap; gap:6px;}
@@ -407,6 +427,7 @@
     <a href="#matches">Matches</a>
     <a href="#gamebreakdown" class="coach-only">Game breakdown</a>
     <a href="#zones" class="coach-only">Zones</a>
+    <a href="#heatmaps" class="coach-only">Heat maps</a>
     <a href="#roster">Roster</a>
   </nav>
 
@@ -467,6 +488,13 @@
     <div class="sec-head"><h2 class="stitle">Field zones</h2><button class="export-btn" id="expZones" type="button">⤓ Export</button></div>
     <p class="slede">Where the team's passes and time-on-ball happen, by pitch third (own team, averaged across the selected games). Click a bar to see it by game.</p>
     <div class="zone-cols" id="zoneCols"></div>
+  </section>
+
+  <section id="heatmaps" class="coach-only">
+    <div class="sec-head"><h2 class="stitle">Heat maps &amp; positioning</h2><button class="export-btn" id="expHeatmaps" type="button">⤓ Export</button></div>
+    <p class="slede">Veo's own team-level position-density maps for each selected game, first half and second half, for us and the opponent — plus our shot map. Read alongside Field zones above to see team shape: are we camped in our own defensive third with the opponent not threatening up top?</p>
+    <div class="heatmap-note"><b>What this is and isn't:</b> Veo tracks team-level positioning only — there's no per-player heat map (clicking a player in Veo gives you their tagged clips and totals, not where they stood). So this can't show individual overlapping/underlapping runs, or literally count "4 defenders back vs. their 1 forward" at a given moment — that needs full player-position tracking Veo doesn't expose. The "defensive-third time" figure on each match card below is a real-data proxy built from Veo's own zone splits (our time in our defensive third vs. the opponent's time in their attacking third) — a cue worth a coach's eye, not a literal headcount.</div>
+    <div id="heatmapCards"></div>
   </section>
 
   <section id="roster">
@@ -1080,6 +1108,13 @@
         "threeToFive": 4,
         "sixPlus": 0,
         "longest": 3
+      },
+      "heatmaps": {
+        "ownFirst": "assets/heatmaps/keystone_hes_1st.png",
+        "ownSecond": "assets/heatmaps/keystone_hes_2nd.png",
+        "oppFirst": "assets/heatmaps/keystone_opp_1st.png",
+        "oppSecond": "assets/heatmaps/keystone_opp_2nd.png",
+        "shotMap": "assets/heatmaps/keystone_shotmap_hes.png"
       }
     },
     {
@@ -1693,6 +1728,13 @@
         "threeToFive": 6,
         "sixPlus": 0,
         "longest": 3
+      },
+      "heatmaps": {
+        "ownFirst": "assets/heatmaps/pennfusion_hes_1st.png",
+        "ownSecond": "assets/heatmaps/pennfusion_hes_2nd.png",
+        "oppFirst": "assets/heatmaps/pennfusion_opp_1st.png",
+        "oppSecond": "assets/heatmaps/pennfusion_opp_2nd.png",
+        "shotMap": "assets/heatmaps/pennfusion_shotmap_hes.png"
       }
     },
     {
@@ -2369,6 +2411,13 @@
         "threeToFive": 14,
         "sixPlus": 3,
         "longest": 8
+      },
+      "heatmaps": {
+        "ownFirst": "assets/heatmaps/nj14bia_hes_1st.png",
+        "ownSecond": "assets/heatmaps/nj14bia_hes_2nd.png",
+        "oppFirst": "assets/heatmaps/nj14bia_opp_1st.png",
+        "oppSecond": "assets/heatmaps/nj14bia_opp_2nd.png",
+        "shotMap": "assets/heatmaps/nj14bia_shotmap_hes.png"
       }
     }
   ]
@@ -2541,6 +2590,49 @@
     row.onclick = function(){ openMetricModal(modalTitle, '%', function(m){ return m[key][sub]; }, {isRate:true}); };
     row.onkeydown = function(e){ if(e.key==='Enter' || e.key===' '){ e.preventDefault(); row.onclick(); } };
     return row;
+  }
+
+  // ---------------- heat maps ----------------
+  // Static per-match images captured from Veo's own Analytics 2 "Heat map" and "Shot map" panels
+  // (team-level position density, own team vs. opponent, first half vs. second half — Veo has no
+  // per-player heat map and no full-match option, only per-period). Not aggregatable across
+  // multiple selected games the way a number is, so this renders one card per selected match.
+  function renderHeatmaps(matches){
+    var wrap = document.getElementById('heatmapCards');
+    wrap.innerHTML = '';
+    var withMaps = matches.filter(function(m){ return m.heatmaps; });
+    if(matches.length === 0){ wrap.appendChild(el('div','empty','Select at least one game.')); return; }
+    if(withMaps.length === 0){ wrap.appendChild(el('div','empty','No heat maps captured yet for the selected game(s).')); return; }
+    withMaps.forEach(function(m){
+      var card = el('div','heatmap-match');
+      var shape = defensiveShapeProxy(m);
+      var shapeHtml = '<div class="heatmap-shape'+(shape.flag?' flag':'')+'">'+
+        '<b>'+Math.round(shape.ownDef)+'%</b> of our time in our defensive third · opponent spent <b>'+Math.round(shape.oppAtt)+'%</b> of theirs in their attacking third'+
+        (shape.flag ? ' — sat deep despite limited pressure; a look for the outside backs' : '') +
+        '</div>';
+      card.innerHTML =
+        '<div class="heatmap-head">'+
+          '<div><div class="opp">vs. '+m.opponent+'</div><div class="date">'+fmtDate(m.date)+'</div></div>'+
+          shapeHtml +
+        '</div>'+
+        '<div class="heatmap-body">'+
+          '<div class="heatmap-grid">'+
+            heatmapItem(m.heatmaps.ownFirst, 'Highland', '1st half')+
+            heatmapItem(m.heatmaps.ownSecond, 'Highland', '2nd half')+
+            heatmapItem(m.heatmaps.oppFirst, oppAbbr(m.opponent), '1st half')+
+            heatmapItem(m.heatmaps.oppSecond, oppAbbr(m.opponent), '2nd half')+
+          '</div>'+
+          '<div class="heatmap-item heatmap-shotmap">'+
+            '<img src="'+m.heatmaps.shotMap+'" alt="Highland shot map vs. '+m.opponent+'" loading="lazy">'+
+            '<div class="hcap"><span class="team">Highland</span> — shot map, full match</div>'+
+          '</div>'+
+        '</div>';
+      wrap.appendChild(card);
+    });
+  }
+  function heatmapItem(src, team, half){
+    if(!src) return '<div class="heatmap-item"><div class="hcap">Not captured</div></div>';
+    return '<div class="heatmap-item"><img src="'+src+'" alt="'+team+' position heat map, '+half+'" loading="lazy"><div class="hcap"><span class="team">'+team+'</span> — '+half+'</div></div>';
   }
 
   // ---------------- game breakdown ----------------
@@ -3229,6 +3321,17 @@
       addToExportQueue({ title:'Field zones', scope: matches.length+' game(s) selected', columns: cols, rows: rows });
     };
 
+    document.getElementById('expHeatmaps').onclick = function(){
+      var matches = matchesForExportScope().filter(function(m){ return m.heatmaps; });
+      if(matches.length === 0){ toast('Select at least one game with heat maps first.'); return; }
+      var cols = ['Opponent','Date','Own def-third time%','Opponent att-third time%','Deep-shape flag'];
+      var rows = matches.map(function(m){
+        var s = defensiveShapeProxy(m);
+        return [m.opponent, fmtDate(m.date), Math.round(s.ownDef), Math.round(s.oppAtt), s.flag ? 'Yes' : 'No'];
+      });
+      addToExportQueue({ title:'Heat maps — defensive-shape proxy', scope: matches.length+' game(s) selected (images not included in CSV)', columns: cols, rows: rows });
+    };
+
     document.getElementById('expRoster').onclick = function(){
       var matches = matchesForExportScope();
       if(matches.length === 0){ toast('Select at least one game first.'); return; }
@@ -3473,6 +3576,21 @@
     var theirs = (m.oppPossThirds && m.oppPossThirds.att) || 0;
     var total = mine + theirs;
     return total > 0 ? round1(mine/total*100) : 0;
+  }
+  // Defensive-shape proxy: NOT a count of players. Veo doesn't expose per-player position
+  // tracking, so there's no way to literally see "4 defenders sitting back vs. their 1 forward"
+  // at a given moment — see the Heat Maps section's caveat. What we DO have, for real, from the
+  // same zone data behind Territorial dominance above: our own share of possession time spent in
+  // OUR defensive third (`possThirds.def`), and the opponent's own share of THEIR possession time
+  // spent in THEIR attacking third (`oppPossThirds.att`). When we're sitting deep a lot AND the
+  // opponent isn't spending much time threatening in their own attacking third, that combination
+  // is a reasonable real-data cue that the team may be sitting deeper than the opponent's actual
+  // threat requires — worth a coach's eye on whether the outside backs especially could commit
+  // higher. `flag` uses conservative thresholds (35% / 20%) so it doesn't fire on ordinary matches.
+  function defensiveShapeProxy(m){
+    var ownDef = (m.possThirds && m.possThirds.def) || 0;
+    var oppAtt = (m.oppPossThirds && m.oppPossThirds.att) || 0;
+    return { ownDef: ownDef, oppAtt: oppAtt, flag: ownDef >= 35 && oppAtt <= 20 };
   }
   // Pressing intensity ("PPDA-lite"): real PPDA (Passes Per Defensive Action) is the opponent's
   // passes completed *in their own defensive two-thirds* divided by the team's own defensive
@@ -3959,6 +4077,14 @@
       }
     }
 
+    // 7) Defensive-shape proxy — sitting deep despite limited opponent attacking threat. A
+    // real-data proxy built from Veo's own zone splits, not a literal defender headcount — see
+    // the Heat Maps section for the full caveat and the per-match images this draws on.
+    var shape = defensiveShapeProxy(latest);
+    if(shape.flag){
+      notes.push({tag:'Shape', text: 'Spent ' + Math.round(shape.ownDef) + '% of our possession time in our own defensive third vs. ' + latest.opponent + ', while they only spent ' + Math.round(shape.oppAtt) + '% of theirs in their attacking third — a cue (not a literal defender count) that we may have sat deeper than their threat required. Worth a look at the Heat Maps section and whether the outside backs especially could have committed forward more.'});
+    }
+
     return notes;
   }
 
@@ -4271,6 +4397,7 @@
     renderMatchCards(matches);
     renderGB(matches);
     renderZones(matches);
+    renderHeatmaps(matches);
     renderPlayerTable(matches);
   }
 

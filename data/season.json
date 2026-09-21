@@ -580,6 +580,13 @@
         "threeToFive": 4,
         "sixPlus": 0,
         "longest": 3
+      },
+      "heatmaps": {
+        "ownFirst": "assets/heatmaps/keystone_hes_1st.png",
+        "ownSecond": "assets/heatmaps/keystone_hes_2nd.png",
+        "oppFirst": "assets/heatmaps/keystone_opp_1st.png",
+        "oppSecond": "assets/heatmaps/keystone_opp_2nd.png",
+        "shotMap": "assets/heatmaps/keystone_shotmap_hes.png"
       }
     },
     {
@@ -1193,6 +1200,13 @@
         "threeToFive": 6,
         "sixPlus": 0,
         "longest": 3
+      },
+      "heatmaps": {
+        "ownFirst": "assets/heatmaps/pennfusion_hes_1st.png",
+        "ownSecond": "assets/heatmaps/pennfusion_hes_2nd.png",
+        "oppFirst": "assets/heatmaps/pennfusion_opp_1st.png",
+        "oppSecond": "assets/heatmaps/pennfusion_opp_2nd.png",
+        "shotMap": "assets/heatmaps/pennfusion_shotmap_hes.png"
       }
     },
     {
@@ -1869,6 +1883,13 @@
         "threeToFive": 14,
         "sixPlus": 3,
         "longest": 8
+      },
+      "heatmaps": {
+        "ownFirst": "assets/heatmaps/nj14bia_hes_1st.png",
+        "ownSecond": "assets/heatmaps/nj14bia_hes_2nd.png",
+        "oppFirst": "assets/heatmaps/nj14bia_opp_1st.png",
+        "oppSecond": "assets/heatmaps/nj14bia_opp_2nd.png",
+        "shotMap": "assets/heatmaps/nj14bia_shotmap_hes.png"
       }
     }
   ]
