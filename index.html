@@ -295,6 +295,14 @@
   .gb-txt{font-size:.8rem; line-height:1.4; color:var(--text-dim);}
   .gb-txt b{color:var(--text);}
   .gb-cue{font-size:.72rem; color:var(--text-mute); padding:0 16px 14px; font-style:italic;}
+  .gb-clip{margin:0 16px 16px; padding:14px 16px; background:var(--accent-soft); border:1px solid var(--accent); border-radius:10px;}
+  .gb-clip-head{display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; flex-wrap:wrap; gap:6px;}
+  .gb-clip-tag{font-size:.74rem; font-weight:800; color:var(--accent-strong); text-transform:uppercase; letter-spacing:.5px;}
+  .gb-clip-clock{font-size:.72rem; font-weight:700; color:var(--text-mute);}
+  .gb-clip-video{width:100%; max-width:640px; display:block; border-radius:8px; background:#000; margin:0 auto 10px;}
+  .gb-clip-title{font-size:.86rem; font-weight:800; color:var(--text); margin:0 0 4px;}
+  .gb-clip-note{font-size:.82rem; line-height:1.45; color:var(--text-dim);}
+  .gb-clip-note + .gb-clip-note{margin-top:6px;}
 
   /* trends */
   .trend-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:12px;}
@@ -1762,29 +1770,30 @@
         "mid": 32,
         "att": 40
       },
-      "read": "A 1–1 draw that carries Veo's own “REDUCED ACCURACY” flag (camera facing the sun, low-contrast kits) — read the shot/goal counts as directionally right, not exact. Highland out-shot NJ14 Bia 4–0 (5–1 in total attempts) and took the lead in the 41st minute, but NJ14 equalized two minutes later. Despite the shot advantage, Highland held only 39% possession — NJ14 controlled the ball more but mostly in deeper areas (57% of their possession in their own defensive third), while Highland's attacking-third share (40%) far outweighed NJ14's (14%). Neither goal has a jersey number tagged by Veo's AI on this match, a direct consequence of the reduced-accuracy flag.",
+      "read": "A 1–1 draw that carries Veo's own “REDUCED ACCURACY” flag (camera facing the sun, low-contrast kits) — read the shot/goal counts as directionally right, not exact. Highland out-shot NJ14 Bia 4–0 (5–1 in total attempts) and took the lead in the 41st minute on a rebound from #71, but NJ14 equalized two minutes later — off a corner, credited to NJ14 on the scoreboard but actually turned in by Highland's own #13 (an own goal, not an NJ14 shot at all, which is also why the team stats show zero shots against Highland this match despite conceding). Despite the shot advantage, Highland held only 39% possession — NJ14 controlled the ball more but mostly in deeper areas (57% of their possession in their own defensive third), while Highland's attacking-third share (40%) far outweighed NJ14's (14%). See the coaching film below for the buildup and corner that led to it.",
       "moments": {
         "timeline": [
           {
             "minute": 41,
             "team": "own",
-            "jersey": null,
+            "jersey": 71,
             "score": "1–0"
           },
           {
             "minute": 43,
             "team": "opp",
-            "jersey": null,
-            "score": "1–1"
+            "jersey": 13,
+            "score": "1–1",
+            "ownGoal": true
           }
         ],
         "own": [
           {
             "minute": 41,
-            "jersey": null,
+            "jersey": 71,
             "isGoal": true,
             "score": "1–0",
-            "note": "GOAL — 1–0. Highland breaks the deadlock in the 41st minute — no jersey number tagged by Veo's AI on this match (reduced-accuracy flag)."
+            "note": "GOAL — 1–0. Highland breaks the deadlock in the 41st minute. Full sequence per manual review: free kick by #7 delivered into the box, #24 gets a shot on target that's saved, #71 buries the rebound. #12 also got a header on the loose ball, just after the goal had already gone in."
           },
           {
             "minute": 69,
@@ -1797,10 +1806,11 @@
         "opp": [
           {
             "minute": 43,
-            "jersey": null,
+            "jersey": 13,
             "isGoal": true,
+            "isOwnGoal": true,
             "score": "1–1",
-            "note": "GOAL — 1–1. NJ14 equalizes just two minutes after going behind — no jersey number tagged (reduced-accuracy flag). Their only shot of the match besides this goal came at 38', so this was a quick response rather than a sustained spell of pressure."
+            "note": "OWN GOAL — 1–1. NJ14 equalizes just two minutes after going behind, but not from a shot of their own — the ball comes back off a corner and in off Highland's own #13, credited to NJ14 on the scoreboard. Their only actual shot of the match came at 38', three minutes before this corner, so this wasn't sustained NJ14 pressure so much as one set piece Highland didn't clear — see the coaching film below, clipped from right after Highland's go-ahead goal through the corner itself."
           },
           {
             "minute": 38,
@@ -1818,11 +1828,11 @@
             },
             {
               "minute": 21,
-              "jersey": null
+              "jersey": 19
             },
             {
               "minute": 22,
-              "jersey": null
+              "jersey": 19
             },
             {
               "minute": 23,
@@ -1830,7 +1840,7 @@
             },
             {
               "minute": 41,
-              "jersey": null,
+              "jersey": 71,
               "isGoal": true,
               "score": "1-0"
             },
@@ -1846,8 +1856,9 @@
             },
             {
               "minute": 43,
-              "jersey": null,
+              "jersey": 13,
               "isGoal": true,
+              "isOwnGoal": true,
               "score": "1-1"
             }
           ]
@@ -2418,7 +2429,20 @@
         "oppFirst": "assets/heatmaps/nj14bia_opp_1st.png",
         "oppSecond": "assets/heatmaps/nj14bia_opp_2nd.png",
         "shotMap": "assets/heatmaps/nj14bia_shotmap_hes.png"
-      }
+      },
+      "coachingClips": [
+        {
+          "id": "nj14bia-defense-buildup",
+          "tag": "Defence",
+          "title": "The buildup to NJ14 Bia's equalizer (own goal off the corner)",
+          "video": "assets/clips/nj14bia_defense_buildup.mp4",
+          "clockLabel": "2nd half, ~41'",
+          "notes": [
+            "Manually clipped by the coaching staff (not an AI-detected highlight) — the sequence right after Highland's own 41st-minute go-ahead goal, as NJ14 Bia works the ball out of their own end and into the corner that produces the 43rd-minute equalizer. Picking up right where this clip leaves off, a companion clip in Veo (\"Opponent Build Up\") carries the same sequence through to the corner kick itself. The equalizer itself was an own goal — the ball comes back off Highland's own #13, not an NJ14 shot — so the coaching point sits as much with defending the corner as with the buildup that won it.",
+            "Worth a team review: Highland had just taken the lead 1–0 moments earlier — what did our shape and press look like in the ~90 seconds afterward that let NJ14 work into a corner, and separately, how did we defend that corner itself? Is there a repeatable trigger here for tightening up right after we score, and is there a first-contact/clearing habit worth drilling on defended set pieces?"
+          ]
+        }
+      ]
     }
   ]
 }</script>
@@ -2644,16 +2668,22 @@
       var mo = m.moments;
       var card = el('div','gb-match');
       var tl = mo.timeline.map(function(t){
+        // An own goal is credited to the scoring side (t.team) on the scoreboard, but the jersey
+        // shown is the other side's player who put it in their own net — "(OG)" makes that plain
+        // rather than letting a jersey number silently look like it belongs to t.team's roster.
+        var who = (t.team==='own'?'HES':oppAbbr(m.opponent))+(t.jersey!=null?' #'+t.jersey:'')+(t.ownGoal?' (OG)':'');
         return '<div class="gb-tl-pt '+t.team+'"><div class="dot"></div><div class="min">'+t.minute+'’</div>'+
-               '<div class="who">'+(t.team==='own'?'HES':oppAbbr(m.opponent))+(t.jersey!=null?' #'+t.jersey:'')+'</div><div class="sc">'+t.score+'</div></div>';
+               '<div class="who">'+who+'</div><div class="sc">'+t.score+'</div></div>';
       }).join('');
       var ownItems = mo.own.map(function(it){ return gbItem(it,'own'); }).join('');
       var oppItems = mo.opp.map(function(it){ return gbItem(it,'opp'); }).join('');
-      var ownLog = mo.fullLog.own.map(function(e){ return e.minute+'’'+(e.jersey!=null?' #'+e.jersey:'')+(e.isGoal?' (goal, '+e.score+')':''); }).join(', ');
-      var oppLog = mo.fullLog.opp.map(function(e){ return e.minute+'’'+(e.jersey!=null?' #'+e.jersey:'')+(e.isGoal?' (goal, '+e.score+')':''); }).join(', ');
+      var ownLog = mo.fullLog.own.map(function(e){ return e.minute+'’'+(e.jersey!=null?' #'+e.jersey:'')+(e.isGoal?' (goal, '+e.score+')':'')+(e.isOwnGoal?' (OG)':''); }).join(', ');
+      var oppLog = mo.fullLog.opp.map(function(e){ return e.minute+'’'+(e.jersey!=null?' #'+e.jersey:'')+(e.isGoal?' (goal, '+e.score+')':'')+(e.isOwnGoal?' (OG)':''); }).join(', ');
 
       var renameNote = (m._jerseyRenameNotes && m._jerseyRenameNotes.length)
         ? '<div class="rename-note">Note: ' + m._jerseyRenameNotes.join(' ') + '</div>' : '';
+
+      var clipsHtml = (m.coachingClips || []).map(gbClip).join('');
 
       card.innerHTML =
         '<div class="gb-head"><div class="opp">vs. '+m.opponent+'</div><div class="date">'+fmtDate(m.date)+' · Final '+m.scoreFor+'–'+m.scoreAgainst+'</div></div>'+
@@ -2663,9 +2693,22 @@
           '<div class="gb-col own"><h4>&#9679; Our best attacking moments</h4>'+ownItems+'</div>'+
           '<div class="gb-col opp"><h4>&#9679; '+m.opponent.split(' ')[0]+'’s best chances</h4>'+oppItems+'</div>'+
         '</div>'+
-        '<div class="gb-cue">Full shot log — HES: '+ownLog+'. '+m.opponent.split(' ')[0]+': '+oppLog+'.</div>';
+        '<div class="gb-cue">Full shot log — HES: '+ownLog+'. '+m.opponent.split(' ')[0]+': '+oppLog+'.</div>'+
+        clipsHtml;
       wrap.appendChild(card);
     });
+  }
+  // Coaching film clips — manually clipped moments from Veo (not AI-detected), attached to a
+  // match's Game Breakdown card so the coach can flag a specific sequence (e.g. the buildup to a
+  // goal conceded) for the team to review, right alongside the shot log it relates to.
+  function gbClip(c){
+    var notes = (c.notes || []).map(function(n){ return '<div class="gb-clip-note">'+n+'</div>'; }).join('');
+    return '<div class="gb-clip">'+
+      '<div class="gb-clip-head"><span class="gb-clip-tag">🎥 Coaching film'+(c.tag?' — '+c.tag:'')+'</span><span class="gb-clip-clock">'+c.clockLabel+'</span></div>'+
+      (c.title ? '<div class="gb-clip-title">'+c.title+'</div>' : '')+
+      '<video class="gb-clip-video" controls preload="metadata" playsinline poster="'+(c.poster||'')+'" src="'+c.video+'"></video>'+
+      notes+
+    '</div>';
   }
   function oppAbbr(name){ return name.split(' ')[0].slice(0,3).toUpperCase(); }
   function gbItem(it, side){

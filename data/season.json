@@ -1234,29 +1234,30 @@
         "mid": 32,
         "att": 40
       },
-      "read": "A 1–1 draw that carries Veo's own “REDUCED ACCURACY” flag (camera facing the sun, low-contrast kits) — read the shot/goal counts as directionally right, not exact. Highland out-shot NJ14 Bia 4–0 (5–1 in total attempts) and took the lead in the 41st minute, but NJ14 equalized two minutes later. Despite the shot advantage, Highland held only 39% possession — NJ14 controlled the ball more but mostly in deeper areas (57% of their possession in their own defensive third), while Highland's attacking-third share (40%) far outweighed NJ14's (14%). Neither goal has a jersey number tagged by Veo's AI on this match, a direct consequence of the reduced-accuracy flag.",
+      "read": "A 1–1 draw that carries Veo's own “REDUCED ACCURACY” flag (camera facing the sun, low-contrast kits) — read the shot/goal counts as directionally right, not exact. Highland out-shot NJ14 Bia 4–0 (5–1 in total attempts) and took the lead in the 41st minute on a rebound from #71, but NJ14 equalized two minutes later — off a corner, credited to NJ14 on the scoreboard but actually turned in by Highland's own #13 (an own goal, not an NJ14 shot at all, which is also why the team stats show zero shots against Highland this match despite conceding). Despite the shot advantage, Highland held only 39% possession — NJ14 controlled the ball more but mostly in deeper areas (57% of their possession in their own defensive third), while Highland's attacking-third share (40%) far outweighed NJ14's (14%). See the coaching film below for the buildup and corner that led to it.",
       "moments": {
         "timeline": [
           {
             "minute": 41,
             "team": "own",
-            "jersey": null,
+            "jersey": 71,
             "score": "1–0"
           },
           {
             "minute": 43,
             "team": "opp",
-            "jersey": null,
-            "score": "1–1"
+            "jersey": 13,
+            "score": "1–1",
+            "ownGoal": true
           }
         ],
         "own": [
           {
             "minute": 41,
-            "jersey": null,
+            "jersey": 71,
             "isGoal": true,
             "score": "1–0",
-            "note": "GOAL — 1–0. Highland breaks the deadlock in the 41st minute — no jersey number tagged by Veo's AI on this match (reduced-accuracy flag)."
+            "note": "GOAL — 1–0. Highland breaks the deadlock in the 41st minute. Full sequence per manual review: free kick by #7 delivered into the box, #24 gets a shot on target that's saved, #71 buries the rebound. #12 also got a header on the loose ball, just after the goal had already gone in."
           },
           {
             "minute": 69,
@@ -1269,10 +1270,11 @@
         "opp": [
           {
             "minute": 43,
-            "jersey": null,
+            "jersey": 13,
             "isGoal": true,
+            "isOwnGoal": true,
             "score": "1–1",
-            "note": "GOAL — 1–1. NJ14 equalizes just two minutes after going behind — no jersey number tagged (reduced-accuracy flag). Their only shot of the match besides this goal came at 38', so this was a quick response rather than a sustained spell of pressure."
+            "note": "OWN GOAL — 1–1. NJ14 equalizes just two minutes after going behind, but not from a shot of their own — the ball comes back off a corner and in off Highland's own #13, credited to NJ14 on the scoreboard. Their only actual shot of the match came at 38', three minutes before this corner, so this wasn't sustained NJ14 pressure so much as one set piece Highland didn't clear — see the coaching film below, clipped from right after Highland's go-ahead goal through the corner itself."
           },
           {
             "minute": 38,
@@ -1290,11 +1292,11 @@
             },
             {
               "minute": 21,
-              "jersey": null
+              "jersey": 19
             },
             {
               "minute": 22,
-              "jersey": null
+              "jersey": 19
             },
             {
               "minute": 23,
@@ -1302,7 +1304,7 @@
             },
             {
               "minute": 41,
-              "jersey": null,
+              "jersey": 71,
               "isGoal": true,
               "score": "1-0"
             },
@@ -1318,8 +1320,9 @@
             },
             {
               "minute": 43,
-              "jersey": null,
+              "jersey": 13,
               "isGoal": true,
+              "isOwnGoal": true,
               "score": "1-1"
             }
           ]
@@ -1890,7 +1893,20 @@
         "oppFirst": "assets/heatmaps/nj14bia_opp_1st.png",
         "oppSecond": "assets/heatmaps/nj14bia_opp_2nd.png",
         "shotMap": "assets/heatmaps/nj14bia_shotmap_hes.png"
-      }
+      },
+      "coachingClips": [
+        {
+          "id": "nj14bia-defense-buildup",
+          "tag": "Defence",
+          "title": "The buildup to NJ14 Bia's equalizer (own goal off the corner)",
+          "video": "assets/clips/nj14bia_defense_buildup.mp4",
+          "clockLabel": "2nd half, ~41'",
+          "notes": [
+            "Manually clipped by the coaching staff (not an AI-detected highlight) — the sequence right after Highland's own 41st-minute go-ahead goal, as NJ14 Bia works the ball out of their own end and into the corner that produces the 43rd-minute equalizer. Picking up right where this clip leaves off, a companion clip in Veo (\"Opponent Build Up\") carries the same sequence through to the corner kick itself. The equalizer itself was an own goal — the ball comes back off Highland's own #13, not an NJ14 shot — so the coaching point sits as much with defending the corner as with the buildup that won it.",
+            "Worth a team review: Highland had just taken the lead 1–0 moments earlier — what did our shape and press look like in the ~90 seconds afterward that let NJ14 work into a corner, and separately, how did we defend that corner itself? Is there a repeatable trigger here for tightening up right after we score, and is there a first-contact/clearing habit worth drilling on defended set pieces?"
+          ]
+        }
+      ]
     }
   ]
 }
